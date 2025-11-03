@@ -1,0 +1,589 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>cs336_4 - moe（专家混合模型） | classical.</title><meta name="author" content="小羊"><meta name="copyright" content="小羊"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="moe（专家混合模型）混合专家模型是由两个部分组成的，一个是稀疏moe层，一个是门控网络或路由。  稀疏 MoE 层: 这些层代替了传统 Transformer 模型中的前馈网络 (FFN) 层。MoE 层包含若干“专家”(例如 8 个)，每个专家本身是一个独立的神经网络。在实际应用中，这些专家通常是前馈网络 (FFN)，但它们也可以是更复杂的网络结构，甚至可以是 MoE 层本身，从而形成层级式的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cs336_4 - moe（专家混合模型）">
+<meta property="og:url" content="http://classical-0.github.io/2025/10/30/moe/index.html">
+<meta property="og:site_name" content="classical.">
+<meta property="og:description" content="moe（专家混合模型）混合专家模型是由两个部分组成的，一个是稀疏moe层，一个是门控网络或路由。  稀疏 MoE 层: 这些层代替了传统 Transformer 模型中的前馈网络 (FFN) 层。MoE 层包含若干“专家”(例如 8 个)，每个专家本身是一个独立的神经网络。在实际应用中，这些专家通常是前馈网络 (FFN)，但它们也可以是更复杂的网络结构，甚至可以是 MoE 层本身，从而形成层级式的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://classical-0.github.io/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png">
+<meta property="article:published_time" content="2025-10-30T09:05:01.685Z">
+<meta property="article:modified_time" content="2025-11-03T06:53:28.752Z">
+<meta property="article:author" content="小羊">
+<meta property="article:tag" content="-cs336 -大语言模型 -机器学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://classical-0.github.io/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "cs336_4 - moe（专家混合模型）",
+  "url": "http://classical-0.github.io/2025/10/30/moe/",
+  "image": "http://classical-0.github.io/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png",
+  "datePublished": "2025-10-30T09:05:01.685Z",
+  "dateModified": "2025-11-03T06:53:28.752Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "小羊",
+      "url": "http://classical-0.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://classical-0.github.io/2025/10/30/moe/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":230,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'cs336_4 - moe（专家混合模型）',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">classical.</span></a><a class="nav-page-title" href="/"><span class="site-name">cs336_4 - moe（专家混合模型）</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">cs336_4 - moe（专家混合模型）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-10-30T09:05:01.685Z" title="发表于 2025-10-30 17:05:01">2025-10-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-03T06:53:28.752Z" title="更新于 2025-11-03 14:53:28">2025-11-03</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="moe（专家混合模型）"><a href="#moe（专家混合模型）" class="headerlink" title="moe（专家混合模型）"></a>moe（专家混合模型）</h1><p>混合专家模型是由两个部分组成的，一个是稀疏moe层，一个是门控网络或路由。</p>
+<ul>
+<li>稀疏 MoE 层: 这些层代替了传统 Transformer 模型中的前馈网络 (FFN) 层。MoE 层包含若干“专家”(例如 8 个)，每个专家本身是一个独立的神经网络。在实际应用中，这些专家通常是前馈网络 (FFN)，但它们也可以是更复杂的网络结构，甚至可以是 MoE 层本身，从而形成层级式的 MoE 结构。</li>
+<li>门控网络或路由: 这个部分用于决定哪些令牌 (token) 被发送到哪个专家。例如，在下图中，“More”这个令牌可能被发送到第二个专家，而“Parameters”这个令牌被发送到第一个专家。有时，一个令牌甚至可以被发送到多个专家。令牌的路由方式是 MoE 使用中的一个关键点，因为路由器由学习的参数组成，并且与网络的其他部分一同进行预训练。<br> <img src="https://github.com/classical-0/img/raw/main/image.png" alt="alt text"></li>
+</ul>
+<p>同时moe背后有些问题：</p>
+<ul>
+<li><p>训练挑战: 虽然 MoE 能够实现更高效的计算预训练，但它们在微调阶段往往面临泛化能力不足的问题，长期以来易于引发过拟合现象。</p>
+</li>
+<li><p>推理挑战: MoE 模型虽然可能拥有大量参数，但在推理过程中只使用其中的一部分，这使得它们的推理速度快于具有相同数量参数的稠密模型。然而，这种模型需要将所有参数加载到内存中，因此对内存的需求非常高。以 Mixtral 8x7B 这样的 MoE 为例，需要足够的 VRAM 来容纳一个 47B 参数的稠密模型。之所以是 47B 而不是 8 x 7B &#x3D; 56B，是因为在 MoE 模型中，只有 FFN 层被视为独立的专家，而模型的其他参数是共享的。此外，假设每个令牌只使用两个专家，那么推理速度 (以 FLOPs 计算) 类似于使用 12B 模型 (而不是 14B 模型)，因为虽然它进行了 2x7B 的矩阵乘法计算，但某些层是共享的。</p>
+</li>
+</ul>
+<p>暂不介绍moe的历史了…</p>
+<h4 id="先看看什么是稀疏性？"><a href="#先看看什么是稀疏性？" class="headerlink" title="先看看什么是稀疏性？"></a>先看看什么是稀疏性？</h4><p>稀疏性的概念采用了条件计算的思想。在传统的稠密模型中，所有的参数都会对所有输入数据进行处理。相比之下，稀疏性允许我们仅针对整个系统的某些特定部分执行计算。这意味着并非所有参数都会在处理每个输入时被激活或使用，而是根据输入的特定特征或需求，只有部分参数集合被调用和运行。</p>
+<p>让我们深入分析 Shazeer 对混合专家模型 (MoE) 在翻译应用中的贡献。条件计算的概念 (即仅在每个样本的基础上激活网络的不同部分) 使得在不增加额外计算负担的情况下扩展模型规模成为可能。这一策略在每个 MoE 层中实现了数以千计甚至更多的专家的有效利用。</p>
+<p>这种稀疏性设置确实带来了一些挑战。例如，在混合专家模型 (MoE) 中，尽管较大的批量大小通常有利于提高性能，但当数据通过激活的专家时，实际的批量大小可能会减少。比如，假设我们的输入批量包含 10 个令牌， 可能会有五个令牌被路由到同一个专家，而剩下的五个令牌分别被路由到不同的专家。这导致了批量大小的不均匀分配和资源利用效率不高的问题。在接下来的部分中，将会讨论让 MoE 高效运行的其他挑战以及相应的解决方案。</p>
+<h2 id="那我们怎么解决这个问题呢？"><a href="#那我们怎么解决这个问题呢？" class="headerlink" title="那我们怎么解决这个问题呢？"></a>那我们怎么解决这个问题呢？</h2><p><img src="https://github.com/classical-0/img/raw/main/55d6a36d-0458-406f-a1ed-91e938699efc-1.png" alt="alt text"></p>
+<h3 id="三种训练解决方法"><a href="#三种训练解决方法" class="headerlink" title="三种训练解决方法"></a>三种训练解决方法</h3><h4 id="1-强化学习门控机制"><a href="#1-强化学习门控机制" class="headerlink" title="1. 强化学习门控机制"></a>1. 强化学习门控机制</h4><h4 id="2-随机扰动"><a href="#2-随机扰动" class="headerlink" title="2. 随机扰动"></a>2. 随机扰动</h4><h4 id="3-启发式“平衡损失”"><a href="#3-启发式“平衡损失”" class="headerlink" title="3. 启发式“平衡损失”"></a>3. 启发式“平衡损失”</h4><h5 id="强化学习"><a href="#强化学习" class="headerlink" title="强化学习"></a>强化学习</h5><p><img src="https://github.com/classical-0/img/raw/main/41af676d-5ec6-411e-a708-b6e7d3a1f3fc-1.png" alt="alt text"><br>强化学习看起来没什么用，而且因为梯度方差和它的复杂性导致无法普遍普及。</p>
+<h5 id="随机扰动"><a href="#随机扰动" class="headerlink" title="随机扰动"></a>随机扰动</h5><p><img src="https://github.com/classical-0/img/raw/main/8d887a0a-fd5d-4e70-8aa4-0bc3f4d10629.png" alt="alt text"></p>
+<p>一个可学习的门控网络决定将输入的哪一部分发送给哪些专家：<br><img src="https://github.com/classical-0/img/raw/main/a3bc2d9d-de73-4715-9ee7-310cc3dd8897.png" alt="alt text"><br>在这种设置下，虽然所有专家都会对所有输入进行运算，但通过门控网络的输出进行加权乘法操作。但是，如果 G (门控网络的输出) 为 0 会发生什么呢？如果是这种情况，就没有必要计算相应的专家操作，因此我们可以节省计算资源。那么一个典型的门控函数是什么呢？一个典型的门控函数通常是一个带有 softmax 函数的简单的网络。这个网络将学习将输入发送给哪个专家。<br><img src="https://github.com/classical-0/img/raw/main/79f1aad5-5f80-46b8-93b5-d3a293fc8f2d.png" alt="alt text"></p>
+<ul>
+<li>softmax函数：一种归一化函数<br><img src="https://github.com/classical-0/img/raw/main/47f26938-e82c-422d-811a-ccff07bf10d0.png" alt="alt text"><br><img src="https://github.com/classical-0/img/raw/main/b6518b8b-33e7-4e3b-871e-6b50e27f0880.png" alt="alt text"></li>
+</ul>
+<p>Shazeer 等人的工作还探索了其他的门控机制，其中包括带噪声的 TopK 门控 (Noisy Top-K Gating)。这种门控方法引入了一些可调整的噪声，然后保留前 k 个值。具体来说:<br><img src="https://github.com/classical-0/img/raw/main/7ab6cce4-9edc-41e6-b500-e4e82ef2ec83.png" alt="alt text"><br>是不是很眼熟？没错就是随机扰动下的第一张图！</p>
+<p>这种稀疏性引入了一些有趣的特性。通过使用较低的 k 值 (例如 1 或 2)，我们可以比激活多个专家时更快地进行训练和推理。为什么不只选择最顶尖的专家呢？最初的假设是，需要将输入路由到不止一个专家，以便门控学会如何进行有效的路由选择，因此至少需要选择两个专家。Switch Transformers 就这点进行了更多的研究。</p>
+<p>我们为什么要添加噪声呢？这是为了专家间的负载均衡！</p>
+<p>如果上面那一点点没看懂的话请看这个：（其实是我没看懂我自己想加点解释）：）<br><img src="https://github.com/classical-0/img/raw/main/5372729f-69ed-4d1d-a2f7-6cf70b4c75ca.png" alt="alt text"><br><img src="https://github.com/classical-0/img/raw/main/8db7874b-e027-4a5b-b3dd-ad9c4ef322e4-1.png" alt="alt text"><br><img src="https://github.com/classical-0/img/raw/main/66d18a3e-20cd-46af-9dbe-a3cb6160b31b.png" alt="alt text"></p>
+<p><img src="https://github.com/classical-0/img/raw/main/b9d34725-7bd4-4864-973a-ef173bdd75b7.png" alt="alt text"><br>这张ppt，这个灰色框框里面是实现路由机制！</p>
+<ul>
+<li>混合专家模型中令牌的负载均衡<br>正如之前讨论的，如果所有的令牌都被发送到只有少数几个受欢迎的专家，那么训练效率将会降低。在通常的混合专家模型 (MoE) 训练中，门控网络往往倾向于主要激活相同的几个专家。这种情况可能会自我加强，因为受欢迎的专家训练得更快，因此它们更容易被选择。为了缓解这个问题，引入了一个 辅助损失，旨在鼓励给予所有专家相同的重要性。这个损失确保所有专家接收到大致相等数量的训练样本，从而平衡了专家之间的选择。接下来的部分还将探讨专家容量的概念，它引入了一个关于专家可以处理多少令牌的阈值。在 transformers 库中，可以通过 aux_loss 参数来控制辅助损失。</li>
+</ul>
+<p><img src="https://github.com/classical-0/img/raw/main/6ed9ade3-72c7-4459-9355-10d3c021370d.png" alt="alt text"></p>
+<p>这块的内容我没有找到对应的文章，我只能借助ai帮助我理解了。（虽然前面也没少用）</p>
+<p>这部分内容是 Switch Transformer 中用于解决 “专家负载不均衡” 的启发式平衡损失（Heuristic balancing losses） 机制，核心目的是让所有专家在训练中被 “均匀调用”，从而提升系统效率。我们逐部分解析：</p>
+<ol>
+<li>背景：为什么需要 “专家负载均衡”？<br>在 MoE 模型中，门控网络（路由）可能会 “偏爱” 某些专家（比如这些专家对多数输入的匹配度更高），导致部分专家被频繁调用（负载过高），部分专家被闲置（负载过低）。这种不均衡会带来两个问题：</li>
+</ol>
+<ul>
+<li>硬件资源浪费：闲置的专家参数占用内存但未参与计算；</li>
+<li>模型性能下降：频繁被调用的专家容易过拟合，闲置专家则学习不足。</li>
+</ul>
+<p>因此，需要引入 “平衡损失” 来强制门控网络更均匀地分配输入到各个专家。</p>
+<ol start="2">
+<li>公式（4）：平衡损失的定义<br>$$ \text{loss} &#x3D; \alpha \cdot N \cdot \sum_{i&#x3D;1}^N f_i \cdot P_i $$</li>
+</ol>
+<ul>
+<li>α：平衡损失的权重超参数（用于控制该损失对总训练损失的影响程度）。</li>
+<li>N：专家的总数量。</li>
+<li>f i：第 i 个专家被实际调用的 “频率占比”（即有多少比例的 token 被分配给该专家）。</li>
+<li>P i：门控网络对第 i 个专家的 “概率分配占比”（即门控网络预期分配给该专家的 token 比例）。</li>
+</ul>
+<p>loss不是直接算 “差距”，而是通过奖励 “实际与预期匹配的专家”、惩罚 “分配极端的情况”，逼着门控网络把任务 “撒出去”，让尽可能多的专家都参与进来 —— 这正是 MoE 模型 “负载均衡” 的终极目标：不是让每个专家的工作量 “绝对相等”，而是让所有专家都 “有事干”，避免资源浪费。</p>
+<p>$$ f_i &#x3D; \frac{1}{T} \sum_{x \in \mathcal{B}} \mathbb{1}{\text{argmax } p(x) &#x3D; i} $$</p>
+<ul>
+<li>T：当前批次B中的 token 总数。</li>
+<li>1{⋅}：指示函数（条件满足时返回 1，否则返回 0）。</li>
+<li>argmax p(x)&#x3D;i：表示 “输入 token x 被门控网络分配给第i个专家”（即第i个专家是匹配度最高的）。<br>含义：f i是当前批次中，被实际分配给第i个专家的 token 占总 token 数的比例。</li>
+</ul>
+<p>$$ P_i &#x3D; \frac{1}{T} \sum_{x \in \mathcal{B}} p_i(x) $$</p>
+<ul>
+<li>p i (x)：门控网络对输入 token x分配给第i个专家的原始概率（可指 Softmax 前的 logits 或 Softmax 后的概率值）。</li>
+</ul>
+<p>含义：P i是门控网络对第 i 个专家的 “理论分配比例”，反映了模型对该专家的预期调用频率。</p>
+<p><img src="https://github.com/classical-0/img/raw/main/79f6e86c-3646-4528-b168-c354aa5aaac9-1.png" alt="alt text"><br><img src="https://github.com/classical-0/img/raw/main/c68ef960-bd0c-469f-b790-60e43be5626c.png" alt="alt text"><br><img src="https://github.com/classical-0/img/raw/main/601db36c-2f07-4e8d-97a5-bdc68b945ee7.png" alt="alt text"></p>
+<p><img src="https://github.com/classical-0/img/raw/main/e8011dca-45ca-4193-a8bb-b837fad65af9.png" alt="alt text"><br>这张图和那张ppt最大的不同是为每位专家设置偏置项，声称不需要额外的平衡损失函数。</p>
+<p><img src="https://github.com/classical-0/img/raw/main/9fa0b4b0-cfa8-4374-be4a-04324293bab2.png" alt="alt text"></p>
+<p><img src="https://github.com/classical-0/img/raw/main/6f143a2e-a9e3-49ac-89f1-9fbcb59d68f9.png" alt="alt text"></p>
+<p>总结：DeepSeek V3 的负载均衡逻辑<br>1.给专家加偏置：让闲置专家更易被选，过载专家更少被选，实现 “自动负载均衡”。<br>2.无辅助损失：避免传统辅助损失对主任务的干扰，训练更高效。<br>3.序列级辅助损失兜底：防止极端不均衡，确保鲁棒性。（鲁棒性：抗干扰能力强）</p>
+<p><img src="https://github.com/classical-0/img/raw/main/77165089-6f85-4f1c-83f3-9d8adfa8870f.png" alt="alt text"><br><img src="https://github.com/classical-0/img/raw/main/6a29f467-cb49-4cf8-a9e4-ee47c5eb4193-1.png" alt="alt text"><br><img src="https://github.com/classical-0/img/raw/main/c54c2a9b-086d-43c9-a7b8-242c956aa2dc.png" alt="alt text"></p>
+<p><img src="https://github.com/classical-0/img/raw/main/f1d06ea4-b8d8-43a7-bd87-b067195c2c45-1.png" alt="alt text"></p>
+<center style="font-size:14px;color:#C0C0C0;text-decoration:underline">图24 训练moes——系统方面</center> 
+对于这张图的左半部分单独讲解（有相关文章）
+
+<p><strong>MoEs and Transformers</strong><br>Transformer 类模型明确表明，增加参数数量可以提高性能，因此谷歌使用 GShard 尝试将 Transformer 模型的参数量扩展到超过 6000 亿并不令人惊讶。</p>
+<p>GShard 将在编码器和解码器中的每个前馈网络 (FFN) 层中的替换为使用 Top-2 门控的混合专家模型 (MoE) 层。下图展示了编码器部分的结构。这种架构对于大规模计算非常有效: 当扩展到多个设备时，MoE 层在不同设备间共享，而其他所有层则在每个设备上复制。我们将在 “让 MoE 起飞”部分对这一点进行更详细的讨论。<br><img src="https://github.com/classical-0/img/raw/main/image-1.png" alt="alt text"><br>为了保持负载平衡和训练效率，GShard 的作者除了引入了上一节中讨论的类似辅助损失外，还引入了一些关键变化:</p>
+<ul>
+<li>随机路由: 在 Top-2 设置中，我们始终选择排名最高的专家，但第二个专家是根据其权重比例随机选择的。</li>
+<li>专家容量: 我们可以设定一个阈值，定义一个专家能处理多少令牌。如果两个专家的容量都达到上限，令牌就会溢出，并通过残差连接传递到下一层，或在某些情况下被完全丢弃。专家容量是 MoE 中最重要的概念之一。为什么需要专家容量呢？因为所有张量的形状在编译时是静态确定的，我们无法提前知道多少令牌会分配给每个专家，因此需要一个固定的容量因子。</li>
+</ul>
+<p>GShard 的工作对适用于 MoE 的并行计算模式也做出了重要贡献，但这些内容的讨论超出了这篇博客的范围。</p>
+<p>注意: 在推理过程中，只有部分专家被激活。同时，有些计算过程是共享的，例如自注意力 (self-attention) 机制，它适用于所有令牌。这就解释了为什么我们可以使用相当于 12B 稠密模型的计算资源来运行一个包含 8 个专家的 47B 模型。如果我们采用 Top-2 门控，模型会使用高达 14B 的参数。但是，由于自注意力操作 (专家间共享) 的存在，实际上模型运行时使用的参数数量是 12B。</p>
+<p>至于图24的右半部分：<br><strong>让moe起飞</strong><br>最初的混合专家模型 (MoE) 设计采用了分支结构，这导致了计算效率低下。这种低效主要是因为 GPU 并不是为处理这种结构而设计的，而且由于设备间需要传递数据，网络带宽常常成为性能瓶颈。在接下来的讨论中，我们会讨论一些现有的研究成果，旨在使这些模型在预训练和推理阶段更加高效和实用。我们来看看如何优化 MoE 模型，让 MoE 起飞。</p>
+<p><strong>并行计算</strong></p>
+<p>让我们简要回顾一下并行计算的几种形式:</p>
+<ul>
+<li><strong>数据并行</strong>: 相同的权重在所有节点上复制，数据在节点之间分割。</li>
+<li><strong>模型并行</strong>: 模型在节点之间分割，相同的数据在所有节点上复制。</li>
+<li><strong>模型和数据并行</strong>: 我们可以在节点之间同时分割模型和数据。注意，不同的节点处理不同批次的数据。</li>
+<li><strong>专家并行</strong>: 专家被放置在不同的节点上。如果与数据并行结合，每个节点拥有不同的专家，数据在所有节点之间分割。</li>
+</ul>
+<p>在专家并行中，专家被放置在不同的节点上，每个节点处理不同批次的训练样本。对于非 MoE 层，专家并行的行为与数据并行相同。对于 MoE 层，序列中的令牌被发送到拥有所需专家的节点。</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="https://github.com/classical-0/img/raw/main/image-2.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">Switch Transformers 论文中展示如何使用不同的并行技术在节点上分割数据和模型的插图</div>
+</center>
+
+<p><em>注意：中间蓝色的区域一整块代表这是一批数据，不同颜色代表这是不同模型或数据，像第一张图就是每个cpu或gpu都有一个完整的模型，下面是不同cpu或gpu分到一个数据的不同部分</em></p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="https://github.com/classical-0/img/raw/main/9661ce9b-5528-4ec4-a511-4534b9774959.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">图 27 针对不同规模的专家和令牌数量的块稀疏矩阵乘法。该图来自 MegaBlocks 论文</div>
+</center>
+
+<p>哎，这个文章里也有！<br><strong>高效训练</strong><br>FasterMoE (2022 年 3 月) 深入分析了 MoE 在不同并行策略下的理论性能极限，并且探索了一系列创新技术，包括用于专家权重调整的方法、减少延迟的细粒度通信调度技术，以及一个基于最低延迟进行专家选择的拓扑感知门控机制。这些技术的结合使得 MoE 运行速度提升高达 17 倍。</p>
+<p>Megablocks (2022 年 11 月) 则专注于通过开发新的 GPU kernel 来处理 MoE 模型中的动态性，以实现更高效的稀疏预训练。其核心优势在于，它不会丢弃任何令牌，并能高效地适应现代硬件架构 (支持块稀疏矩阵乘)，从而达到显著的加速效果。Megablocks 的创新之处在于，它不像传统 MoE 那样使用批量矩阵乘法 (这通常假设所有专家形状相同且处理相同数量的令牌)，而是将 MoE 层表示为块稀疏操作，可以灵活适应不均衡的令牌分配。</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="https://github.com/classical-0/img/raw/main/image-3.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">图 28 对chatgpt“忽强忽弱”的解释</div>
+</center>
+
+<p><strong>一、核心问题：MoE 为什么会有额外的随机性？</strong><br>你有没有发现，有时候用 GPT-4 回答同一个问题，两次的风格、甚至正确性都不太一样？有人推测，这可能和它底层用了 <strong>MoE（专家混合模型）</strong> 有关。这张图就解释了 MoE 模型 “随机性” 的来源，我们可以把它拆成 4 个步骤理解。</p>
+<p><strong>二、步骤 1：路由（Routing）——“给 token 选专家”</strong><br>首先，模型会把输入的每个 “词（token）” 分配给不同的专家（就像把不同类型的工作分给不同部门）：</p>
+<ul>
+<li>每个 token 会被 “路由模块（Router）” 打分，判断它最适合哪个专家。</li>
+<li>比如图中的 “the”“quick”“brown” 这些词，会被分配给不同的专家（Expert 0、1、2 等）。</li>
+<li>这里的 “分配概率” 是随机的（不是固定死的），所以同一个词可能这次分给专家 A，下次分给专家 B。</li>
+</ul>
+<p><strong>三、步骤 2：排列与丢弃（Permutation &amp; Drop）——“人多了就裁员”</strong><br>接下来，模型会对 token 进行 “分组和裁剪”：</p>
+<ul>
+<li>每个专家的 “工作量（容量）” 是有限的。如果分给某个专家的 token 太多，就会随机丢弃一些 token（图中的红色叉号）。</li>
+<li>关键：丢弃是在 “批次级别” 进行的—— 你的查询（比如 “请解释 MoE”）可能和别人的查询在同一批次处理，别人的查询如果占满了专家的容量，你的 token 就会被丢掉！</li>
+<li>这就像 “公司部门招满人了，新申请的工作就被拒了”，而且 “拒谁” 是随机的，这就带来了额外的随机性。</li>
+</ul>
+<p><strong>四、步骤 3：计算（Computation）——“专家各自干活”</strong><br>被留下的 token 会被分配给对应的专家，专家们各自处理自己的 token（比如 Expert 0 处理 “quick”，Expert 1 处理 “the”）。<br>这一步本身不增加随机性，但因为 “哪些 token 被留下” 是随机的，所以每个专家处理的任务也带有随机性。</p>
+<p><strong>五、步骤 4：逆排列与缩放（Un-Permutation &amp; Scale）——“汇总结果”</strong><br>最后，把各个专家的输出合并起来：</p>
+<ul>
+<li>先把 token “还原顺序”（逆排列），再根据 “分配概率” 给每个 token 的输出加权（缩放）。</li>
+<li>因为 “分配概率” 和 “丢弃” 都是随机的，所以最终的汇总结果也会带有随机性。</li>
+</ul>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="https://github.com/classical-0/img/raw/main/image-8.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">图 29 混合专家的稳定性</div>
+</center>
+
+<p><em>注（中间那段翻译）：指数函数具有这样的特性：输入的微小扰动会导致输出的巨大差异。举个例子，考虑向 Softmax 函数输入 10 个对数几率（logits），其中 10 个的值为 128，还有一个的值为 128.5。在 bfloat16 精度下，0.5 的舍入误差会使 Softmax 输出改变 36%，并错误地让所有对数几率变得相等。计算结果从 (\frac{\exp(0)}{\exp(0) + 10 \cdot \exp(-0.5)} \approx 0.142) 变为 (\frac{\exp(0)}{\exp(0) + 10 \cdot \exp(0)} \approx 0.091)。这是因为在 Softmax 运算中，为了数值稳定性，会从所有对数几率中减去最大值，而舍入误差将数值从 128.5 变为 128。这个例子是在 bfloat16 精度下的情况，但在 float32 精度下，当对数几率值更大时，也会出现类似的情况。</em></p>
+<p><strong>用 Router z-loss 稳定模型训练</strong><br>之前讨论的平衡损失可能会导致稳定性问题。我们可以使用许多方法来稳定稀疏模型的训练，但这可能会牺牲模型质量。例如，引入 dropout 可以提高稳定性，但会导致模型质量下降。另一方面，增加更多的乘法分量可以提高质量，但会降低模型稳定性。</p>
+<p>ST-MoE 引入的 Router z-loss 在保持了模型性能的同时显著提升了训练的稳定性。这种损失机制通过惩罚门控网络输入的较大 logits 来起作用，目的是促使数值的绝对大小保持较小，这样可以有效减少计算中的舍入误差。这一点对于那些依赖指数函数进行计算的门控网络尤其重要。为了深入了解这一机制，建议参考原始论文以获得更全面的细节。</p>
+<p><strong>z-loss</strong> 通过 “惩罚大 logits”，让门控网络的 logits 保持在较小的范围（比如从 128 降到 50），此时即使有微小精度误差，经过 exp 和 Softmax 后，输出结果也不会剧烈波动（就像 “体温控制在 37℃左右，即使有点小波动也不会发烧”）。</p>
+<p>这张图聚焦于MoE 模型的稳定性问题，核心是 “数值计算误差如何导致模型训练不稳定”，并给出了对应的解决方案。我们从 “问题根源→例子说明→解决方案” 三步拆解：<br><strong>一、问题根源：</strong><br>指数函数的 “放大效应”MoE 的门控网络依赖Softmax 函数（公式为 (\text{Softmax}(z_i) &#x3D; \frac{e^{z_i}}{\sum_j e^{z_j}})），而指数函数 (e^x) 有个特点：输入的微小扰动会导致输出的巨大差异。<br>举个极端例子（图中文字描述）：假设 Softmax 的输入（logits）有 10 个值为 128，1 个值为 128.5。<br>如果因为 “数值精度不足”（比如用 bfloat16 格式），这个 128.5 被四舍五入成 128，会发生什么？<br>原本的计算：(\frac{\exp(0)}{\exp(0) + 10 \cdot \exp(-0.5)} \approx 0.142)误差后的计算：(\frac{\exp(0)}{\exp(0) + 10 \cdot \exp(0)} \approx 0.091)输出直接变化了 36%，甚至会错误地让所有 logits 变得 “看起来相等”—— 这种误差会让门控网络的 “专家选择” 完全失控，导致模型训练崩溃（左图的训练损失会剧烈波动甚至发散）。</p>
+<p><strong>二、左图：</strong><br>训练损失的不稳定性左图的 “Training Loss” 曲线展示了没有解决数值稳定性时，模型训练的崩溃风险—— 损失可能在训练过程中突然飙升，无法收敛。这就是数值误差导致 MoE 模型 “不稳定” 的直观体现。</p>
+<p><strong>三、解决方案：</strong><br>Float32 + 辅助 z-loss为了缓解这个问题，图中给出两个策略：</p>
+<ol>
+<li>仅在专家路由器中使用 Float32原理：Float32 的数值精度比 bfloat16 更高，能减少 “四舍五入误差”，避免指数函数的放大效应。类比：把 “专家分配” 这个关键步骤换成 “高精度计算器”，减少计算错误。</li>
+<li>辅助 z-loss（公式 5）(L_z(x) &#x3D; \frac{1}{B} \sum_{i&#x3D;1}^B \left( \log \sum_{j&#x3D;1}^N e^{x_j^{(i)}} \right)^2)<br>符号翻译：<br>B：批次大小（一次处理的样本数）；<br>N：专家数量；(x_j^{(i)})：第i个样本中，第j个专家的 logits（门控网络的原始输出）。<br>作用：通过惩罚 “logits 的指数和的对数的平方”，强制门控网络的输出更 “稳定”，避免出现极端大的 logits（从而减少数值误差的影响）。</li>
+</ol>
+<p>总结：MoE 稳定性问题的来龙去脉MoE 模型的门控网络因为用了 Softmax（指数函数），容易出现 “输入微扰→输出巨变” 的数值不稳定问题。</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="https://github.com/classical-0/img/raw/main/image-9.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">图 31 z-loss 对 MoE 模型训练稳定性和性能的关键作用</div>
+</center>
+
+<p>我感觉这张图是对上张图的解决方法的补充吧，这张图很明显的显示出了z-loss对moe模型稳定性和性能造成的提升。<br>这张图通过对比“使用Router z-loss”和“不使用Router z-loss”的实验结果，直观展示了<strong>z-loss对MoE模型训练稳定性和性能的关键作用</strong>。我们从四个子图和核心结论分别解读：</p>
+<p>一、子图1：Training loss（训练损失）</p>
+<ul>
+<li>粉色曲线（Z-loss）：训练损失平稳下降，收敛过程稳定。</li>
+<li>蓝色曲线（No z-loss）：训练损失剧烈波动（出现大量“尖刺”），甚至可能中途崩溃。</li>
+<li>结论：<strong>z-loss能让模型训练过程更稳定</strong>，避免因数值不稳定导致的损失飙升。</li>
+</ul>
+<p>二、子图2：Validation loss (C4)（验证损失）</p>
+<ul>
+<li>粉色曲线（Z-loss）：验证损失持续下降，模型泛化能力稳定提升。</li>
+<li>蓝色曲线（No z-loss）：验证损失波动明显，泛化能力不稳定。</li>
+<li>结论：<strong>z-loss不仅稳定训练，还能保障模型在 unseen 数据上的性能</strong>。</li>
+</ul>
+<p>三、子图3：HellaSwag（常识推理任务）</p>
+<ul>
+<li>粉色曲线（Z-loss）：任务得分更高且稳定。</li>
+<li>蓝色曲线（No z-loss）：得分低且波动大。</li>
+<li>结论：<strong>z-loss能提升模型的下游任务性能</strong>，尤其是需要稳定推理的场景。</li>
+</ul>
+<p>四、子图4：MMLU Var（多任务知识理解任务）</p>
+<ul>
+<li>粉色曲线（Z-loss）：任务得分更高，且曲线更“紧凑”（波动小）。</li>
+<li>蓝色曲线（No z-loss）：得分低且波动剧烈。</li>
+<li>结论：<strong>z-loss让模型在复杂多任务上的表现更稳定、更优秀</strong>。</li>
+</ul>
+<p>五、核心问题：“移除z-loss会发生什么？”<br>从图中可见，移除z-loss后：</p>
+<ul>
+<li>训练过程会变得不稳定（损失剧烈波动）；</li>
+<li>验证集和下游任务的性能会显著下降，且波动极大。</li>
+</ul>
+<p>这说明<strong>z-loss是MoE模型稳定训练、保障性能的关键机制</strong>——它通过约束门控网络的logits大小，从根源上解决了数值不稳定的问题，最终让模型既能稳定训练，又能在各种任务上保持良好表现。</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="https://github.com/classical-0/img/raw/main/image-10.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">图 32 moe-微调</div>
+</center>
+
+<h5 id="微调混合专家模型"><a href="#微调混合专家模型" class="headerlink" title="微调混合专家模型"></a>微调混合专家模型</h5><p><em>4.36.0 版本的 transformers 库支持 Mixtral 模型。你可以用以下命令进行安装: pip install “transformers&#x3D;&#x3D;4.36.0 –upgrade</em></p>
+<p>稠密模型和稀疏模型在过拟合的动态表现上存在显著差异。稀疏模型更易于出现过拟合现象，因此在处理这些模型时，尝试更强的内部正则化措施是有益的，比如使用更高比例的 dropout。例如，我们可以为稠密层设定一个较低的 dropout 率，而为稀疏层设置一个更高的 dropout 率，以此来优化模型性能。</p>
+<p>在微调过程中是否使用辅助损失是一个需要决策的问题。ST-MoE 的作者尝试关闭辅助损失，发现即使高达 11% 的令牌被丢弃，模型的质量也没有显著受到影响。令牌丢弃可能是一种正则化形式，有助于防止过拟合。</p>
+<p>Switch Transformers 的作者观察到，在相同的预训练困惑度下，稀疏模型在下游任务中的表现不如对应的稠密模型，特别是在重理解任务 (如 SuperGLUE) 上。另一方面，对于知识密集型任务 (如 TriviaQA)，稀疏模型的表现异常出色。作者还观察到，在微调过程中，较少的专家的数量有助于改善性能。另一个关于泛化问题确认的发现是，模型在小型任务上表现较差，但在大型任务上表现良好。</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="https://github.com/classical-0/img/raw/main/image-11.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">在小任务 (左图) 中，我们可以看到明显的过拟合，因为稀疏模型在验证集中的表现要差得多。在较大的任务 (右图) 中，MoE 则表现良好。该图来自 ST-MoE 论文</div>
+</center>
+
+<p>一种可行的微调策略是尝试冻结所有非专家层的权重。实践中，这会导致性能大幅下降，但这符合我们的预期，因为混合专家模型 (MoE) 层占据了网络的主要部分。我们可以尝试相反的方法: 仅冻结 MoE 层的参数。实验结果显示，这种方法几乎与更新所有参数的效果相当。这种做法可以加速微调过程，并降低显存需求。</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="https://github.com/classical-0/img/raw/main/image-12.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">通过仅冻结 MoE 层，我们可以在保持质量的同时加快训练速度。该图来自 ST-MoE 论文（冻结指不改变这个模型）</div>
+</center>
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="https://github.com/classical-0/img/raw/main/image-13.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">其他训练方法</div>
+</center>
+
+<p>这张图介绍了一种名为 “升级再造（Upcycling）” 的 MoE 训练方法，核心是用预训练的密集语言模型来初始化 MoE 模型，从而提升训练效率和性能。我们从 “方法原理” 和 “实验效果” 两部分拆解：</p>
+<p>一、方法原理：把 “密集模型” 改造成 “MoE 模型”<br>左侧的结构图展示了具体步骤：<br>原始密集模块（Original Dense Block）：这是普通 Transformer 的一个模块，包含 Layer Norm、Attention、MLP 等组件。<br>复制权重并改造（Upcycled MoE Block）：<br>把原始模块中的Attention 层权重直接复制到新 MoE 模块的 Attention 层（保留通用的注意力能力）。<br>把原始模块中的MLP 层复制成多个 “专家 MLP”（比如复制成 MLP 1、MLP 2…MLP E，每个专家负责一类任务）。<br>新增一个门控网络（Router），用来决定每个输入该分给哪个专家 MLP 处理。<br>最终通过 “加权求和（Weighted Sum）” 合并所有专家的输出，得到 MoE 模块的结果。</p>
+<p>二、实验效果：升级再造让 MoE 性能更优<br>右侧的 “C4 Validation Token Accuracy” 图表对比了不同方法的性能：<br>横轴：额外预训练时间（TPU-core-days），代表训练成本。<br>纵轴：C4 验证集的 Token 准确率，代表模型性能。<br>Dense（密集模型）：性能随训练时间提升，但上限有限。<br>Upcycling（升级再造的 MoE）：性能曲线上升更快，最终能超过同规模的密集模型（比如 “Upcycling” 的 XL 规模模型，性能比 “Dense” 的 XL 模型更高）。<br>这说明用预训练密集模型初始化 MoE 的方法是有效的—— 既保留了密集模型的通用知识，又通过 MoE 的 “专家分工” 提升了性能上限，同时还能减少训练时间。</p>
+<p>三、核心问题：“可以用预训练语言模型初始化 MoE 吗？”<br>图中的实验和方法给出了明确答案：可以。通过 “复制密集模型的权重 + 新增门控网络和专家 MLP” 的方式，能让 MoE 模型继承预训练模型的通用能力，同时发挥 MoE 的稀疏优势，最终实现 “性能更优、训练更高效” 的效果。</p>
+<p><img src="https://github.com/classical-0/img/raw/main/e127c9e4-792e-4941-8a4a-68f242523f09.png" alt="alt text"></p>
+<p>这张图是 <strong>“升级再造（Upcycling）” 方法在 MiniCPM 模型上的实战案例</strong>，核心是展示 “把基础模型改造成 MoE 模型后，性能能得到多大提升”。我们从 “模型配置”“基准测试对比” 和 “结论” 三部分解读：</p>
+<p>一、模型配置：MiniCPM-MoE 的参数细节</p>
+<ul>
+<li>它基于 MiniCPM 模型改造，采用 topk&#x3D;2（每个 token 选 2 个专家处理）、8 个专家，活跃参数约 40 亿。</li>
+<li>训练数据量约5200 亿个 token，通过 “升级再造” 的方式继承了基础模型的能力，同时引入 MoE 的专家分工。</li>
+</ul>
+<p>二、基准测试对比：MoE 版 MiniCPM 性能碾压同级别模型<br>表格中对比了多个模型在 8 个权威基准任务上的表现，我们重点看 <strong>MiniCPM-2.4B（基础版）和MiniCPM-MoE（13.6B，MoE 版）</strong> 的差距。</p>
+<p>同时，MoE 版 MiniCPM 在 <strong>MBPP（代码理解）和BBH（多步推理）</strong> 任务上也有明显提升，甚至超过了参数量更大的 Llama2-34B、Deepseek-MoE 等模型的部分表现。</p>
+<p>三、结论：“升级再造” 让 MoE 模型性价比拉满<br>通过把基础模型改造成 MoE 模型（MiniCPM-MoE），在参数量增加有限的情况下（从 2.4B 到 13.6B），所有下游任务的性能都显著提升。这证明了 “升级再造” 方法的有效性 —— 它能让基础模型在继承通用能力的同时，通过 MoE 的专家分工实现 “性能跃升”，是一种高效的 MoE 模型训练策略。</p>
+<p><img src="https://github.com/classical-0/img/raw/main/b5db9267-ec0f-4598-a0ca-142906f02e24-1.png" alt="alt text"><br>这张图是“升级再造（Upcycling）”方法在Qwen MoE模型上的实践案例，核心是展示通过“从预训练密集模型初始化MoE”的策略，实现性能与效率的平衡。我们从“模型配置”“基准测试对比”和“核心价值”三部分解读：</p>
+<p> 一、模型配置：Qwen MoE的参数细节</p>
+<ul>
+<li>它从Qwen 1.8B（密集模型）初始化而来，采用 <strong>top-k&#x3D;4</strong>（每个token选4个专家处理）、60个专家（其中4个是共享专家）的架构。</li>
+<li>这种设计既继承了Qwen 1.8B的通用知识，又通过MoE的“专家分工”实现了性能突破。</li>
+</ul>
+<p> 二、基准测试对比：Qwen MoE的性能表现<br>表格对比了多个7B级模型在5个权威任务上的表现，重点看<strong>Qwen1.5-MoE-A2.7B</strong>（MoE版）的优势：</p>
+<table>
+<thead>
+<tr>
+<th>任务类型</th>
+<th>关键指标对比（数值越高越好）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>多任务知识（MMLU）</td>
+<td>Qwen MoE得62.5，超过Mistral-7B（64.1略低，但参数量仅为其1&#x2F;3左右）、Gemma-7B（61.0）</td>
+</tr>
+<tr>
+<td>数学推理（GSM8K）</td>
+<td>Qwen MoE得61.5，远超DeepSeekMoE 16B（18.8），接近Gemma-7B（62.5）</td>
+</tr>
+<tr>
+<td>代码生成（HumanEval）</td>
+<td>Qwen MoE得34.2，超过DeepSeekMoE 16B（26.8），接近Gemma-7B（36.0）</td>
+</tr>
+<tr>
+<td>多语言能力（Multilingual）</td>
+<td>Qwen MoE得40.8，与Gemma-7B（45.2）差距小，且远超无多语言能力的模型</td>
+</tr>
+<tr>
+<td>对话能力（MT-Bench）</td>
+<td>Qwen MoE得7.17，与Mistral-7B、Gemma-7B（均为7.60）接近，远高于DeepSeekMoE 16B（6.93）</td>
+</tr>
+</tbody></table>
+<p> 三、核心价值：“升级再造”的效率与创新性</p>
+<ul>
+<li><strong>性能-参数量比高</strong>：Qwen MoE仅用约2.7B的“激活参数”（远低于密集模型的7.2-8.5B），就在多个任务上接近甚至超过7B级密集模型，证明MoE的“稀疏优势”能以更低参数量实现高性能。</li>
+<li><strong>早期成功案例</strong>：它和DeepSeekMoE架构类似，但属于“最早被确认的升级再造成功案例之一”，验证了“从密集模型初始化MoE”这一策略的可行性，为后续MoE模型的高效训练提供了参考。</li>
+</ul>
+<p>简单来说，Qwen MoE通过“升级再造”方法，以远低于7B模型的参数量，实现了接近甚至超越7B密集模型的性能，是“用小参数量换高性能”的典型MoE成功案例。</p>
+<p><img src="https://github.com/classical-0/img/raw/main/image-14.png" alt="alt text"><br><img src="https://github.com/classical-0/img/raw/main/image-15.png" alt="alt text"><br><img src="https://github.com/classical-0/img/raw/main/image-16.png" alt="alt text"></p>
+<p>第一张图是<strong>DeepSeek MoE V1版本的架构解析</strong>，核心展示了它的“专家分工逻辑”和“负载均衡机制”。我们从“模型规模”“路由策略”“负载均衡”三部分拆解：</p>
+<h3 id="一、模型规模：16B总参量，2-8B活跃参量"><a href="#一、模型规模：16B总参量，2-8B活跃参量" class="headerlink" title="一、模型规模：16B总参量，2.8B活跃参量"></a>一、模型规模：16B总参量，2.8B活跃参量</h3><ul>
+<li>“16B”是模型的<strong>总参数量</strong>（160亿），但因为MoE是“稀疏激活”的（每个token只选少数专家处理），实际<strong>活跃参量只有2.8B</strong>（28亿）。</li>
+<li>这体现了MoE的“稀疏优势”：用更少的计算资源，实现接近大参量密集模型的性能。</li>
+</ul>
+<h3 id="二、路由策略：Standard-top-k-routing（标准顶级路由）"><a href="#二、路由策略：Standard-top-k-routing（标准顶级路由）" class="headerlink" title="二、路由策略：Standard, top-k routing（标准顶级路由）"></a>二、路由策略：Standard, top-k routing（标准顶级路由）</h3><p>这部分是“如何给token分配专家”的逻辑：</p>
+<ul>
+<li>公式 ( s_{i,t} &#x3D; \text{Softmax}(u_t^T e_i) )：门控网络给每个专家打“匹配度分数”（( s_{i,t} )），判断第( t )个token适合第( i )个专家的程度。</li>
+<li>公式 ( g_{i,t} &#x3D; \begin{cases} s_{i,t}, &amp; s_{i,t} \in \text{Topk}({s_{j,t}}, K_r), \ 0, &amp; \text{otherwise}. \end{cases} )：只保留“匹配度前K_r名”的专家（比如K_r&#x3D;4，就选4个最适合的专家），其他专家的权重置0。</li>
+<li>最终输出 ( h_t’ &#x3D; u_t + \sum_{i&#x3D;1}^{N_s} \text{FFN}<em>i^{(s)}(u_t) + \sum</em>{i&#x3D;1}^{N_r} g_{i,t} \text{FFN}_i^{(r)}(u_t) )：由“共享专家（( N_s )个）”和“路由专家（( N_r )个）”的输出加权求和得到。</li>
+</ul>
+<h3 id="三、负载均衡：Standard-Aux-loss-balancing（标准辅助损失平衡）"><a href="#三、负载均衡：Standard-Aux-loss-balancing（标准辅助损失平衡）" class="headerlink" title="三、负载均衡：Standard Aux-loss balancing（标准辅助损失平衡）"></a>三、负载均衡：Standard Aux-loss balancing（标准辅助损失平衡）</h3><p>这部分是“如何让专家负载更均匀”的机制：</p>
+<ul>
+<li>损失函数 ( \mathcal{L}<em>{\text{Expert}} &#x3D; \alpha_1 \sum</em>{i&#x3D;1}^{N_r} f_i p_i )：通过惩罚“实际调用频率( f_i )”和“预期调用概率( p_i )”的偏差，强制专家负载均衡。<ul>
+<li>( f_i &#x3D; \frac{N_r}{K_r T} \sum_{t&#x3D;1}^T \mathbb{1}(\text{Token } t \text{ 选中专家 } i) )：统计每个专家被选中的实际频率。</li>
+<li>( p_i &#x3D; \frac{1}{T} \sum_{t&#x3D;1}^T s_{i,t} )：每个专家的预期调用概率（由门控网络的分数归一化得到）。</li>
+</ul>
+</li>
+<li>这种机制避免了“少数专家过载、多数专家闲置”的问题，让所有专家的能力都能被充分利用。</li>
+</ul>
+<h3 id="总结：DeepSeek-MoE-V1的核心设计"><a href="#总结：DeepSeek-MoE-V1的核心设计" class="headerlink" title="总结：DeepSeek MoE V1的核心设计"></a>总结：DeepSeek MoE V1的核心设计</h3><p>它通过“top-k路由”实现“token到专家的精准分配”，同时用“辅助损失”保证“专家负载均衡”，最终在“16B总参量”下，仅用“2.8B活跃参量”就实现了高效且稳定的MoE模型训练。</p>
+<p>第二张 PPT：DeepSeek MoE V2—— 设备级优化与通信效率</p>
+<p>核心主题：从 “模型内部均衡” 到 “硬件部署均衡” 的升级内容拆解：</p>
+<p><strong>模型规模升级</strong><br>总参量 236B（2360 亿），活跃参量 21B（210 亿）—— 参量扩大 14 倍，支持更复杂任务（如长文本推理、多语言处理）。</p>
+<p>核心痛点：跨设备通信瓶颈<br>问题：MoE 专家分布在多台设备（如 GPU），若某设备的专家被频繁调用，会导致设备间数据传输拥堵（“通信墙”）。<br>举例：64 个专家分布在 8 台设备，若某设备的专家被选中概率达 30%，该设备需向其他 7 台设备频繁发送数据，拖慢整体速度。<br>创新：Top-M 设备路由<br>策略：先选 “包含高匹配度专家的 M 个设备”，再在这些设备内选 Top-K 专家（如 M&#x3D;2，K&#x3D;10）。<br>效果：将通信范围限制在 M 台设备内，减少跨设备数据传输量，实测训练速度提升 20%+。</p>
+<p><strong>通信平衡损失</strong><br>在 V1 的负载均衡基础上，新增 “设备级通信损失”：惩罚某设备的输入 &#x2F; 输出数据量与平均值的偏差。<br>目标：让每台设备的通信量接近，避免单设备成为 “拖油瓶”。</p>
+<p><strong>性能对比</strong><br>在长文本生成（如 10k token）任务中，V2 的推理延迟比 V1 降低 35%，同时保持 MMLU 等任务得分提升 5-8%。</p>
+<p>第三张ppt：DeepSeek MoE V3—— 无辅助损失与路由革新核心主题</p>
+<p>通过 “路由简化” 和 “无辅助损失”，实现训练稳定性与性能的双重突破。</p>
+<p>模型规模：总参量 671B（6710 亿），活跃参量 37B（370 亿）。</p>
+<p>专家架构：1 个共享专家 + 258 个精细专家，每个 token 选 8 个专家处理。</p>
+<p>创新 1：Sigmoid+Softmax topK+topM 路由逻辑：用 Sigmoid 函数先对专家打分（输出 0-1 的概率），再结合 topK&#x2F;topM 筛选专家，最后用 Softmax 归一化权重。</p>
+<p>公式：(s_{i,t} &#x3D; \text{Sigmoid}(u_t^T e_i)) → 筛选后(g’<em>{i,t}) → 归一化(g</em>{i,t} &#x3D; \frac{g’<em>{i,t}}{\sum_j g’</em>{j,t}})。</p>
+<p>价值：避免传统 Softmax 对 “极端高分专家” 的过度倾斜，让更多专家参与，提升模型泛化能力。</p>
+<p>创新 2：无辅助损失的序列级均衡逻辑:通过专家偏置(b_i)自适应调整专家被选概率（闲置专家增加(b_i)，过载专家减少(b_i)），仅在极端场景用 “序列级辅助损失” 兜底。</p>
+<p>公式：(g’<em>{i,t} &#x3D; \begin{cases} s</em>{i,t}, &amp; s_{i,t} + b_i \in \text{Topk}({s_{j,t}+b_j}, K_r) \ 0, &amp; \text{otherwise} \end{cases})。价值：训练更稳定，下游任务得分提升 3-5%，同时避免辅助损失对主任务的干扰。</p>
+<p><img src="https://github.com/classical-0/img/raw/main/image-17.png" alt="alt text"><br>MLA（多头潜在注意力）—— 显存与推理效率革命核心主题：<br>通过 “低维潜在激活” 压缩注意力机制的显存占用，支持超长序列推理。</p>
+<p>基本思路：将注意力的 Q、K、V 表示为 “低维潜在向量c” 的函数，而非直接从输入(h_t)生成。</p>
+<p>公式：(\mathbf{c}_t^{KV} &#x3D; W^{DKV} \mathbf{h}_t) → (\mathbf{k}_t^C &#x3D; W^{UK} \mathbf{c}_t^{KV})，(\mathbf{v}_t^C &#x3D; W^{UV} \mathbf{c}_t^{KV})。</p>
+<p>核心价值：KV 缓存时仅需存储(\mathbf{c}_t^{KV})（维度仅为原 K&#x2F;V 的 1&#x2F;10），显存占用降低 90%，支持 100k + 长度的序列推理。训练时压缩查询维度，内存消耗减少 50%+，可在普通硬件上训练超大模型。</p>
+<p><img src="https://github.com/classical-0/img/raw/main/image-18.png" alt="alt text"><br>MLA 的复杂性与解决方案 ——RoPE 兼容设计核心主题：</p>
+<p>解决 “MLA 缓存” 与 “RoPE 旋转编码” 的冲突，兼顾位置信息与缓存效率。</p>
+<p>冲突根源：RoPE 需要对 K&#x2F;V 进行旋转编码，而 MLA 的 K&#x2F;V 由低维(c^{KV})生成，直接旋转会破坏缓存逻辑。</p>
+<p>解决方案：保留 “几个非潜在的关键维度” 用于 RoPE 旋转，确保位置信息不丢失。</p>
+<p>公式：(\langle Q R_q, R_k K \rangle &#x3D; \langle h W^Q R_q, R_k W^{UK} c^{KV} \rangle &#x3D; \langle h W^Q R_q R_k W^{UK}, c^{KV} \rangle)。</p>
+<p>效果：在不损失位置编码精度的前提下，维持 MLA 的缓存优势，实现 “超长序列 + 精确位置理解” 的双重目标。</p>
+<p><img src="https://github.com/classical-0/img/raw/main/image-19.png" alt="alt text"><br>MTP（多步预测）—— 推理速度升级核心主题：<br>用轻量小模型提前预测多步 token，减少主模型的重复计算，加速推理。</p>
+<p>基本思路：<br>主模型：负责高精度单步预测，但计算量大。</p>
+<p>MTP 模块：用小型轻量模型（如 1B 参量）提前预测 “下 N 个 token”，主模型仅需验证 &#x2F; 修正。</p>
+<p>实现细节：<br>公式：(\mathbf{h}<em>i^k &#x3D; M_k[\text{RMSNorm}(\mathbf{h}</em>{i-1}^{k-1}); \text{RMSNorm}(\text{Emb}(t_{i+k}))]) → 多步预测后由主模型输出最终概率(p_{i+k+1}^k)。</p>
+<p>性能收益：长文本生成速度提升 40%，且预测准确率保持在 85% 以上，在对话、代码生成等场景中效果显著。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://classical-0.github.io">小羊</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://classical-0.github.io/2025/10/30/moe/">http://classical-0.github.io/2025/10/30/moe/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://classical-0.github.io" target="_blank">classical.</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/cs336-%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">-cs336 -大语言模型 -机器学习</a></div><div class="post-share"><div class="social-share" data-image="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/08/18/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0/" title="面向对象程序设计"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">面向对象程序设计</div></div><div class="info-2"><div class="info-item-1">面向对象编程（python）基本理论什么是对象对象是把属性特征等封装起来的一整个物体 python是一门特别彻底的面向对象编程（oop）的语言  graph LR     A[面向对象编程] ---B(基本理论)     B --- C{什么是对象}     C --- D[对象是把属性特征等封装起来的一整个物体]     C --- E[python是一门特别彻底的面向对象编程的语言]     E --- F[其他语言]     F --- F1[基本数据类型]     F1---f1[int]     F1---f2[float]     F1---f3[...]     F---F2[对象类型]     F2---f22[string]     F2---f23[Array-数组]     F2---f24[...]     E---G[python]     G---G1[对象类型]     G1---g1[int]     G1---g2[float]     G1---g3[bool]     G1---g4[list]     G1---g5[...]  ```  ...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">小羊</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://mail.qq.com/cgi-bin/frame_html?sid=DdTu5zhxMtGmx0Yu&amp;r=29af1364f8ac3adca5fee6ecb77262bc&amp;lang=zh" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">这里没有什么好东西，快走吧！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#moe%EF%BC%88%E4%B8%93%E5%AE%B6%E6%B7%B7%E5%90%88%E6%A8%A1%E5%9E%8B%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">moe（专家混合模型）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%88%E7%9C%8B%E7%9C%8B%E4%BB%80%E4%B9%88%E6%98%AF%E7%A8%80%E7%96%8F%E6%80%A7%EF%BC%9F"><span class="toc-number">1.0.0.1.</span> <span class="toc-text">先看看什么是稀疏性？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%82%A3%E6%88%91%E4%BB%AC%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%E8%BF%99%E4%B8%AA%E9%97%AE%E9%A2%98%E5%91%A2%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">那我们怎么解决这个问题呢？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E7%A7%8D%E8%AE%AD%E7%BB%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="toc-number">1.1.1.</span> <span class="toc-text">三种训练解决方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E9%97%A8%E6%8E%A7%E6%9C%BA%E5%88%B6"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">1. 强化学习门控机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%9A%8F%E6%9C%BA%E6%89%B0%E5%8A%A8"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">2. 随机扰动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%90%AF%E5%8F%91%E5%BC%8F%E2%80%9C%E5%B9%B3%E8%A1%A1%E6%8D%9F%E5%A4%B1%E2%80%9D"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">3. 启发式“平衡损失”</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0"><span class="toc-number">1.1.1.3.1.</span> <span class="toc-text">强化学习</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9A%8F%E6%9C%BA%E6%89%B0%E5%8A%A8"><span class="toc-number">1.1.1.3.2.</span> <span class="toc-text">随机扰动</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BE%AE%E8%B0%83%E6%B7%B7%E5%90%88%E4%B8%93%E5%AE%B6%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.1.1.3.3.</span> <span class="toc-text">微调混合专家模型</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A8%A1%E5%9E%8B%E8%A7%84%E6%A8%A1%EF%BC%9A16B%E6%80%BB%E5%8F%82%E9%87%8F%EF%BC%8C2-8B%E6%B4%BB%E8%B7%83%E5%8F%82%E9%87%8F"><span class="toc-number">1.1.2.</span> <span class="toc-text">一、模型规模：16B总参量，2.8B活跃参量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%B7%AF%E7%94%B1%E7%AD%96%E7%95%A5%EF%BC%9AStandard-top-k-routing%EF%BC%88%E6%A0%87%E5%87%86%E9%A1%B6%E7%BA%A7%E8%B7%AF%E7%94%B1%EF%BC%89"><span class="toc-number">1.1.3.</span> <span class="toc-text">二、路由策略：Standard, top-k routing（标准顶级路由）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%EF%BC%9AStandard-Aux-loss-balancing%EF%BC%88%E6%A0%87%E5%87%86%E8%BE%85%E5%8A%A9%E6%8D%9F%E5%A4%B1%E5%B9%B3%E8%A1%A1%EF%BC%89"><span class="toc-number">1.1.4.</span> <span class="toc-text">三、负载均衡：Standard Aux-loss balancing（标准辅助损失平衡）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9ADeepSeek-MoE-V1%E7%9A%84%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1"><span class="toc-number">1.1.5.</span> <span class="toc-text">总结：DeepSeek MoE V1的核心设计</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/30/moe/" title="cs336_4 - moe（专家混合模型）">cs336_4 - moe（专家混合模型）</a><time datetime="2025-10-30T09:05:01.685Z" title="发表于 2025-10-30 17:05:01">2025-10-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/08/18/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0/" title="面向对象程序设计">面向对象程序设计</a><time datetime="2025-08-18T08:12:36.000Z" title="发表于 2025-08-18 16:12:36">2025-08-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/07/15/o/" title="o">o</a><time datetime="2025-07-15T15:14:18.000Z" title="发表于 2025-07-15 23:14:18">2025-07-15</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png);"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 By 小羊</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>function initMermaid() {
+  console.log("Attempting to initialize Mermaid...");
+  if (typeof mermaid !== 'undefined') {
+    
+    // 处理被代码高亮插件分割的Mermaid代码
+    var mermaidContainers = document.querySelectorAll('code.language-mermaid, pre.language-mermaid');
+    
+    mermaidContainers.forEach(function(container) {
+      // 创建一个新的div来存放Mermaid代码
+      var mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      
+      // 提取文本内容 - 处理被分割成多行span的情况
+      var fullCode = '';
+      var lineSpans = container.querySelectorAll('span.line');
+      
+      if (lineSpans.length > 0) {
+        // 如果代码被分割成多个span.line元素
+        lineSpans.forEach(function(span) {
+          fullCode += span.textContent + '\n';
+        });
+      } else {
+        // 如果是完整的代码块
+        fullCode = container.textContent || container.innerText;
+      }
+      
+      // 设置Mermaid代码
+      mermaidDiv.textContent = fullCode;
+      
+      // 用新的div替换原始容器
+      if (container.parentNode) {
+        container.parentNode.replaceChild(mermaidDiv, container);
+      } else {
+        // 如果没有父节点，直接添加到body（备用方案）
+        document.body.appendChild(mermaidDiv);
+      }
+    });
+    
+    console.log("Found and processed Mermaid containers:", mermaidContainers.length);
+    
+    // 初始化并渲染
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: { useMaxWidth: true }
+    });
+    mermaid.init();
+    console.log("Mermaid initialization executed.");
+    
+  } else {
+    console.error("Mermaid library not found!");
+  }
+}
+
+// 使用多种方式确保执行
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMermaid);
+} else {
+  setTimeout(initMermaid, 100); // 稍微延迟执行
+}
+window.addEventListener('load', initMermaid);</script>
