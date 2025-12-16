@@ -1,0 +1,345 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>classical. | classical.</title><meta name="author" content="小羊"><meta name="copyright" content="小羊"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="GPU架构上图有几个重点的元素，也是我们下文重点要阐述的概念，绿色代表的是computational units(可计算单元) 或者称之为 cores(核心)，橙色代表memories（内存） ，黄色代表的是control units（控制单元）。 计算单元CPU的计算单元是“大”而“少”的，然而GPU的计算单元是“小”而“多”的。 这里的大小是指的计算能力，多少指的是设备中的数量。通过观察上图，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="classical.">
+<meta property="og:url" content="http://classical-0.github.io/2025/11/09/GPU%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3%E5%8F%8A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="classical.">
+<meta property="og:description" content="GPU架构上图有几个重点的元素，也是我们下文重点要阐述的概念，绿色代表的是computational units(可计算单元) 或者称之为 cores(核心)，橙色代表memories（内存） ，黄色代表的是control units（控制单元）。 计算单元CPU的计算单元是“大”而“少”的，然而GPU的计算单元是“小”而“多”的。 这里的大小是指的计算能力，多少指的是设备中的数量。通过观察上图，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://classical-0.github.io/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png">
+<meta property="article:published_time" content="2025-11-09T06:09:58.724Z">
+<meta property="article:modified_time" content="2025-11-10T15:08:21.373Z">
+<meta property="article:author" content="小羊">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://classical-0.github.io/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "",
+  "url": "http://classical-0.github.io/2025/11/09/GPU%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3%E5%8F%8A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/",
+  "image": "http://classical-0.github.io/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png",
+  "datePublished": "2025-11-09T06:09:58.724Z",
+  "dateModified": "2025-11-10T15:08:21.373Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "小羊",
+      "url": "http://classical-0.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://classical-0.github.io/2025/11/09/GPU%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3%E5%8F%8A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":230,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'classical.',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">classical.</span></a><a class="nav-page-title" href="/"><span class="site-name">classical.</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">无标题</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-11-09T06:09:58.724Z" title="发表于 2025-11-09 14:09:58">2025-11-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-10T15:08:21.373Z" title="更新于 2025-11-10 23:08:21">2025-11-10</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="GPU架构"><a href="#GPU架构" class="headerlink" title="GPU架构"></a>GPU架构</h1><p><img src="/image.png" alt="alt text"><br>上图有几个重点的元素，也是我们下文重点要阐述的概念，绿色代表的是computational units(可计算单元) 或者称之为 cores(核心)，橙色代表memories（内存） ，黄色代表的是control units（控制单元）。</p>
+<h2 id="计算单元"><a href="#计算单元" class="headerlink" title="计算单元"></a>计算单元</h2><p>CPU的计算单元是“大”而“少”的，然而GPU的计算单元是“小”而“多”的。</p>
+<p>这里的大小是指的计算能力，多少指的是设备中的数量。通过观察上图，显然可以看出，计算单元（绿色的部分），CPU“大少”，GPU“小多”的特点。</p>
+<p>在过去的很长时间里，CPU的core计算能力增长是得益于主频时钟最大的频率增长。</p>
+<p>相反，GPU不仅没有主频时钟的提升，而且还经历过主频下降的情况，因为GPU需要适应嵌入式应用环境，在这个环境下对功耗的要求是比较高的，不能容忍超高主频的存在。</p>
+<ul>
+<li><h6 id="时钟频率（clock-rate）是指同步电路中时钟的基础频率，以赫兹（Hz）为单位度量。它是评定CPU性能的重要指标之一。时钟频率越高，CPU的速度通常也越快。主频（CPU-Clock-Speed）是指CPU内核工作的时钟频率。主频表示在CPU内数字脉冲信号震荡的速度。虽然主频和CPU的实际运算速度存在一定关系，但并不是一个简单的线性关系。"><a href="#时钟频率（clock-rate）是指同步电路中时钟的基础频率，以赫兹（Hz）为单位度量。它是评定CPU性能的重要指标之一。时钟频率越高，CPU的速度通常也越快。主频（CPU-Clock-Speed）是指CPU内核工作的时钟频率。主频表示在CPU内数字脉冲信号震荡的速度。虽然主频和CPU的实际运算速度存在一定关系，但并不是一个简单的线性关系。" class="headerlink" title="时钟频率（clock rate）是指同步电路中时钟的基础频率，以赫兹（Hz）为单位度量。它是评定CPU性能的重要指标之一。时钟频率越高，CPU的速度通常也越快。主频（CPU Clock Speed）是指CPU内核工作的时钟频率。主频表示在CPU内数字脉冲信号震荡的速度。虽然主频和CPU的实际运算速度存在一定关系，但并不是一个简单的线性关系。"></a>时钟频率（clock rate）是指同步电路中时钟的基础频率，以赫兹（Hz）为单位度量。它是评定CPU性能的重要指标之一。时钟频率越高，CPU的速度通常也越快。主频（CPU Clock Speed）是指CPU内核工作的时钟频率。主频表示在CPU内数字脉冲信号震荡的速度。虽然主频和CPU的实际运算速度存在一定关系，但并不是一个简单的线性关系。</h6></li>
+</ul>
+<p>CPU比GPU聪明，很大一个原因就是CPU拥有”out-of-order exectutions”（乱序执行）功能。</p>
+<p>出于优化的目的，CPU可以用不同于输入指令的顺序执行指令，当遇到分支的时候，它可以预测在不久的将来哪一个指令最有可能被执行到（multiple branch prediction 多重分支预测）。</p>
+<p>总的来说，GPU的core只能做一些最简单的浮点运算,例如 multiply-add(MAD)或者 fused multiply-add(FMA)指令。</p>
+<p>GPU Core最开始只是支持一些简单的浮点运算FMA, 后来经过发展又增加了一些复杂运算的机制tensor core以及ray trace，但是总体来说GPU的计算灵活性还是比不上CPU的核心。</p>
+<p>值得一提的是，GPU的编程方式是SIMD(Single Instruction Multiple Data)意味着所有Core的计算操作完全是在相同的时间内进行的，但是输入的数据有所不同。</p>
+<p><strong>GPU的优势不在于核心的处理能力，而是在于他可以大规模并行处理数据。</strong></p>
+<p>SIMD编程模型允许加速运行非常多的应用，对图像进行缩放就是一个很好的例子。</p>
+<p>在这个例子中，每个core对应图像的一个像素点，这样就可以并行的处理每一个像素点的缩放操作，如果这个工作给到CPU来做，需要N的时间才可以做完，但是给到GPU只需要一个时钟周期就可以完成。</p>
+<p>当然，这样做的前提是有足够的core来覆盖所有的图像像素点。这个问题有个显著的特点，就是对一张图像进行缩放操作，各个像素点之间的信息是相互独立的，因此可以独立的放在不同的core中进行并行运算。</p>
+<p>我们认为不同的core操作的信息相互独立，是符合SIMD的模型的，使用SIMD来解决这样的问题非常方便。</p>
+<p>但是，也不是所有的问题都是符合SIMD模型的，尤其在异步问题中，在这样的问题中，不同的core之间要相互交互信息，计算的结构不规则，负载不均衡，这样的问题交给GPU来处理就会比较复杂。</p>
+<ul>
+<li><strong>SIMD（Single Instruction, Multiple Data）:</strong><br>SIMD是一种并行计算的范式，其中同一指令被应用于一组数据元素的并行计算。这种模型适用于数据级并行性较高的应用，如图形处理、信号处理和科学计算等。（SIMT按线程执行程序，现在gpu主流应该是SIMT）<br>特点：一条指令同时操作多个数据元素</li>
+</ul>
+<ul>
+<li><strong>异步(Asynchronization)</strong>，指的是当前代码的执行不影响后面代码的执行。当程序运行到异步的代码时，会将该异步的代码作为任务放进任务队列，而不是推入主线程的调用栈。等主线程执行完之后，再去任务队列里执行对应的任务即可。因此，异步操作的优点就是：不会阻塞后续代码的执行</li>
+</ul>
+<h2 id="内存memory"><a href="#内存memory" class="headerlink" title="内存memory"></a>内存memory</h2><p><img src="/image.png" alt="alt text"></p>
+<p>回到第一张图，现在我们会来讨论cpu和gpu在内存方面的差异。</p>
+<p>关于cache，我看的这篇文章：<a target="_blank" rel="noopener" href="https://blog.csdn.net/zhizhengguan/article/details/121274383">https://blog.csdn.net/zhizhengguan/article/details/121274383</a></p>
+<p>CPU的memory系统一般是基于DRAM的，在桌面PC中，一般来说是8G，在服务器中能达到数百（256）Gbyte。</p>
+<p>CPU内存系统中有个重要的概念就是cache，是用来减少CPU访问DRAM的时间。cache是一片小的内存区域，但是访问速度更快，更加靠近处理器核心的内存段，用来储存DRAM中的数据副本。</p>
+<p>cache一般有一个分级，通常分为三个级别L1，L2，L3 cache，cache离核心越近就越小访问越快，例如 L1可以是64KB L2就是256KB L3是4MB。</p>
+<p>CPU Cache的内容不再这里展开讲解，感兴趣的读者可以自行查阅资料。</p>
+<p>从第一张图可以看到GPU中有一大片橙色的内存，名称为DRAM，这一块被称为全局内存或者GMEM。</p>
+<p>GMEM的内存大小要比CPU的DRAM小的多，在最便宜的显卡中一般只有几个G的大小，在最好的显卡中GMEM可以达到24G。</p>
+<p>GMEM的尺寸大小是科学计算使用中的主要限制。十年前，显卡的容量最多也就只有512M,但是，现在已经完全克服了这个问题。</p>
+<p>关于cache，从第一张图中不难推断，左上角的小橙色块就是GPU的cache段。然而GPU的缓存机制和CPU是存在一定的差异的，稍后将会证明这一点。</p>
+<h2 id="GPU的底层结构"><a href="#GPU的底层结构" class="headerlink" title="GPU的底层结构"></a>GPU的底层结构</h2><p>为了充分理解GPU的架构，让我们在返回来看下第一张图，一个显卡中绝大多数都是计算核心core组成的海洋。</p>
+<p>在图像缩放的例子中，core与core之间不需要任何协作，因为他们的任务是完全独立的，然而，GPU解决的问题不一定这么简单，让我们来举个例子。</p>
+<p>假设我们需要对一个数组里的数进行求和，这样的运算属于reductuin family类型，因为这样的运算试图将一个序列“reduce”简化为一个数。</p>
+<p>计算数组的元素总和的操作看起来是顺序的，我们只需要获取第一个元素，求和到第二个元素中，获取结果，再将结果求和到第三个元素，以此类推。</p>
+<p><img src="/image-2.png" alt="alt text"></p>
+<p>令人惊讶的是，一些看起来本质是顺序的运算，其实可以再并行算法中转化。</p>
+<p>如图：<br><img src="/image-3.png" alt="alt text"></p>
+<p>从GPU的角度来讲，只需要四个core就可以完成长度为8的数组求和算法，我们将四个core编号为0，1，2，3。</p>
+<p><img src="/image-4.png" alt="alt text"></p>
+<p>如果GPU想要完成上述的推理计算过程，显然，多个core之间要可以共享一段内存空间以此来完成数据之间的交互，需要多个core可以在共享的内存空间中完成读&#x2F;写的操作。</p>
+<p>我们希望每个Cores都有交互数据的能力，但是不幸的是，一个GPU里面可以包含数以千计的core，如果使得这些core都可以访问共享的内存段是非常困难和昂贵的。</p>
+<p>出于成本的考虑，折中的解决方案是将各类GPU的core分类为多个组，形成多个流处理器(Streaming Multiprocessors )或者简称为SMs。</p>
+<h2 id="GPU架构-1"><a href="#GPU架构-1" class="headerlink" title="GPU架构"></a>GPU架构</h2><p><img src="/image-5.png" alt="alt text"><br>上图的绿色部分意味着Core计算单元，绿色的块就是上文谈到的Streaming Multiprocessors，理解为Core的集合。</p>
+<p>黄色的部分名为RT COREs画的离SMs非常近。单个SM的图灵架构如下图所示<br><img src="/image-6.png" alt="alt text"></p>
+<p>在SM的图灵结构中，绿色的部分CORE相关的，我们进一步区分了不同类型的CORE。主要分为INT32,FP32，TENSOR CORES。</p>
+<ol>
+<li><p>FP32 Cores，执行单进度浮点运算，在TU102卡中，每个SM由64个FP32核，TU120由72个SMs因此，FP32 Core的数量是 72 * 64。</p>
+</li>
+<li><p>FP64 Cores. 实际上每个SM都包含了2个64位浮点计算核心FP64 Cores，用来计算双精度浮点运算，虽然上图没有画出，但是实际是存在的。</p>
+</li>
+<li><p>Integer Cores，这些core执行一些对整数的操作，例如地址计算，可以和浮点运算同时执行指令。在前几代GPU中，执行这些整型操作指令都会使得浮点运算的管道停止工作。TU102总共由4608个Integer Cores，每个SM有64个SM。</p>
+</li>
+<li><p>Tensor Cores，张量core是FP16单元的变种，认为是半精度单元，致力于张量积算加速常见的深度学习操作。</p>
+</li>
+</ol>
+<p>图灵张量Core还可以执行INT8和INT4精度的操作，用于可以接受量化而且不需要FP16精度的应用场景，在TU102中，我们每个SM有8个张量Cores，一共有8 * 72个Tensor Cores。</p>
+<p>在大致描述了GPU的执行部分之后，让我们回到上文提出的问题，各个核心之间如何完成彼此的协作？</p>
+<p>在四个SM块的底部有一个96KB的L1 Cache，用浅蓝色标注的。这个cache段是允许各个Core都可以访问的段，在L1 Cache中每个SM都有一块专用的共享内存。</p>
+<p>作为芯片上的L1 cache他的大小是有限的，但它非常快，肯定比访问GMEM快得多。</p>
+<p>实际上L1 CACHE拥有两个功能，一个是用于SM上Core之间相互共享内存，另一个则是普通的cache功能。</p>
+<p>当Core需要协同工作，并且彼此交换结果的时候，编译器编译后的指令会将部分结果储存在共享内存中，以便于不同的core获取到对应数据。</p>
+<p>当用做普通cache功能的时候，当core需要访问GMEM数据的时候，首先会在L1中查找，如果没找到，则回去L2 cache中寻找，如果L2 cache也没有，则会从GMEM中获取数据，L1访问最快 L2 以及GMEM递减。</p>
+<p>缓存中的数据将会持续存在，除非出现新的数据做替换。从这个角度来看，如果Core需要从GMEM中多次访问数据，那么编程者应该将这块数据放入功能内存中，以加快他们的获取速度。</p>
+<p>其实可以将共享内存理解为一段受控制的cache，事实上L1 cache和共享内存是同一块电路中实现的。编程者有权决定L1 的内存多少是用作cache多少是用作共享内存。</p>
+<h6 id="cache-l2-和-cache-l3只有缓存作用，l3只有部分昂贵的GPU有"><a href="#cache-l2-和-cache-l3只有缓存作用，l3只有部分昂贵的GPU有" class="headerlink" title="cache l2 和 cache l3只有缓存作用，l3只有部分昂贵的GPU有"></a>cache l2 和 cache l3只有缓存作用，l3只有部分昂贵的GPU有</h6><p>最后，也是比较重要的是，可以储存各个core的计算中间结果，用于各个核心之间共享的内存段不仅仅可以是共享内存L1，也可以是寄存器，寄存器是离core最近的内存段，但是也非常小。</p>
+<p>最底层的思想是每个线程都可以拥有一个寄存器来储存中间结果，每个寄存器只能由相同的一个线程来访问，或者由相同的warp或者组的线程访问。</p>
+<ol start="5">
+<li>总结<br>GPU的基本底层构成，主要是以GPU计算核心 Cores,以及Memory以及控制单元，三大组成要素组成。</li>
+</ol>
+<p>Core是计算的基本单元，既可以用作简单的浮点运算，又可以做一些复杂的运算例如，tensor 或者ray tracing。</p>
+<p>多个core之间通讯的方式：</p>
+<p>在特定的应用场合多个core之间是不需要的通讯的，也就是各干各的（例如 图像缩放）。但是也有一些例子，多个core之间要相互通讯配合（例如上文谈到的数组求和问题），每个core之间都可以实现交互数据是非常昂贵的，因此提出了SMs的概念，SMs是多个core的集合，一个SMs里面的cores可以通过L1 Cache进行交互信息，完成使用GPU处理数组求和问题的时候，多个核心共享数据的功能。</p>
+<p>关于memory，存在全局的内存GMEM，但是访问较慢，Cores当需要访问GMEM的时候会首先访问L1,L2如果都miss了，那么才会花费大代价到GMEM中寻找数据。</p>
+<p><em>这篇文章可以帮助你快速理解gpu</em></p>
+<p><em>文章来源：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/678001378">https://zhuanlan.zhihu.com/p/678001378</a></em></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://classical-0.github.io">小羊</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://classical-0.github.io/2025/11/09/GPU%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3%E5%8F%8A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">http://classical-0.github.io/2025/11/09/GPU%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3%E5%8F%8A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://classical-0.github.io" target="_blank">classical.</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/12/16/%E4%BD%93%E9%AA%8C%E8%AF%BE/" title="运维体验课"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">运维体验课</div></div><div class="info-2"><div class="info-item-1">体验课互联网基本架构 图1：互联网的基本架构，极其脆弱，非常庞大   底层： c语言开发人员  倒数第二层： linux基金会  倒数第三层： DNS，互联网的基本架构  倒数第四层： 左边商业化，右边无偿开源  倒数第五层： AI  旁边的火箭： rust语言（变数）  红鸟： windows（变数）  上面右边堆得高高的：BS架构  最上面就是： 用户   目标：自动化运维  自动化历程 图2：云计算与开源技术发展时间线   vmware： 做虚拟化的，vmware来自于这家公司（在国内几乎没有市场）  amazon： 亚马逊，开启全新IT消费方式，API消费方式，公有云技术代表  heroku： 09年的apache  openstack： 开源open source IaaS（基础设施技术），支持灵活部署公有云和私有云（仍在国内大量使用）  docker： 容器，整个互联网基于容器，定义了标准（使开发完的项目可以在全球范围运行，前提是运行在kubernetes）  kubernetes： 云原生平台，以后的学习方向，迎合paas（云平台技术）   人类一直在想办法实现自动...</div></div></div></a><a class="pagination-related" href="/2025/10/30/moe/" title="cs336_4 - moe（专家混合模型）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">cs336_4 - moe（专家混合模型）</div></div><div class="info-2"><div class="info-item-1">moe（专家混合模型）混合专家模型是由两个部分组成的，一个是稀疏moe层，一个是门控网络或路由。  稀疏 MoE 层: 这些层代替了传统 Transformer 模型中的前馈网络 (FFN) 层。MoE 层包含若干“专家”(例如 8 个)，每个专家本身是一个独立的神经网络。在实际应用中，这些专家通常是前馈网络 (FFN)，但它们也可以是更复杂的网络结构，甚至可以是 MoE 层本身，从而形成层级式的 MoE 结构。 门控网络或路由: 这个部分用于决定哪些令牌 (token) 被发送到哪个专家。例如，在下图中，“More”这个令牌可能被发送到第二个专家，而“Parameters”这个令牌被发送到第一个专家。有时，一个令牌甚至可以被发送到多个专家。令牌的路由方式是 MoE 使用中的一个关键点，因为路由器由学习的参数组成，并且与网络的其他部分一同进行预训练。   同时moe背后有些问题：  训练挑战: 虽然 MoE 能够实现更高效的计算预训练，但它们在微调阶段往往面临泛化能力不足的问题，长期以来易于引发过拟合现象。  推理挑战: MoE 模型虽然可能拥有大量参数，但在推理过程中只使用其中...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">小羊</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://mail.qq.com/cgi-bin/frame_html?sid=DdTu5zhxMtGmx0Yu&amp;r=29af1364f8ac3adca5fee6ecb77262bc&amp;lang=zh" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">这里没有什么好东西，快走吧！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#GPU%E6%9E%B6%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">GPU架构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E5%8D%95%E5%85%83"><span class="toc-number">1.1.</span> <span class="toc-text">计算单元</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%97%B6%E9%92%9F%E9%A2%91%E7%8E%87%EF%BC%88clock-rate%EF%BC%89%E6%98%AF%E6%8C%87%E5%90%8C%E6%AD%A5%E7%94%B5%E8%B7%AF%E4%B8%AD%E6%97%B6%E9%92%9F%E7%9A%84%E5%9F%BA%E7%A1%80%E9%A2%91%E7%8E%87%EF%BC%8C%E4%BB%A5%E8%B5%AB%E5%85%B9%EF%BC%88Hz%EF%BC%89%E4%B8%BA%E5%8D%95%E4%BD%8D%E5%BA%A6%E9%87%8F%E3%80%82%E5%AE%83%E6%98%AF%E8%AF%84%E5%AE%9ACPU%E6%80%A7%E8%83%BD%E7%9A%84%E9%87%8D%E8%A6%81%E6%8C%87%E6%A0%87%E4%B9%8B%E4%B8%80%E3%80%82%E6%97%B6%E9%92%9F%E9%A2%91%E7%8E%87%E8%B6%8A%E9%AB%98%EF%BC%8CCPU%E7%9A%84%E9%80%9F%E5%BA%A6%E9%80%9A%E5%B8%B8%E4%B9%9F%E8%B6%8A%E5%BF%AB%E3%80%82%E4%B8%BB%E9%A2%91%EF%BC%88CPU-Clock-Speed%EF%BC%89%E6%98%AF%E6%8C%87CPU%E5%86%85%E6%A0%B8%E5%B7%A5%E4%BD%9C%E7%9A%84%E6%97%B6%E9%92%9F%E9%A2%91%E7%8E%87%E3%80%82%E4%B8%BB%E9%A2%91%E8%A1%A8%E7%A4%BA%E5%9C%A8CPU%E5%86%85%E6%95%B0%E5%AD%97%E8%84%89%E5%86%B2%E4%BF%A1%E5%8F%B7%E9%9C%87%E8%8D%A1%E7%9A%84%E9%80%9F%E5%BA%A6%E3%80%82%E8%99%BD%E7%84%B6%E4%B8%BB%E9%A2%91%E5%92%8CCPU%E7%9A%84%E5%AE%9E%E9%99%85%E8%BF%90%E7%AE%97%E9%80%9F%E5%BA%A6%E5%AD%98%E5%9C%A8%E4%B8%80%E5%AE%9A%E5%85%B3%E7%B3%BB%EF%BC%8C%E4%BD%86%E5%B9%B6%E4%B8%8D%E6%98%AF%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E7%BA%BF%E6%80%A7%E5%85%B3%E7%B3%BB%E3%80%82"><span class="toc-number">1.1.0.0.0.1.</span> <span class="toc-text">时钟频率（clock rate）是指同步电路中时钟的基础频率，以赫兹（Hz）为单位度量。它是评定CPU性能的重要指标之一。时钟频率越高，CPU的速度通常也越快。主频（CPU Clock Speed）是指CPU内核工作的时钟频率。主频表示在CPU内数字脉冲信号震荡的速度。虽然主频和CPU的实际运算速度存在一定关系，但并不是一个简单的线性关系。</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E5%AD%98memory"><span class="toc-number">1.2.</span> <span class="toc-text">内存memory</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GPU%E7%9A%84%E5%BA%95%E5%B1%82%E7%BB%93%E6%9E%84"><span class="toc-number">1.3.</span> <span class="toc-text">GPU的底层结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GPU%E6%9E%B6%E6%9E%84-1"><span class="toc-number">1.4.</span> <span class="toc-text">GPU架构</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#cache-l2-%E5%92%8C-cache-l3%E5%8F%AA%E6%9C%89%E7%BC%93%E5%AD%98%E4%BD%9C%E7%94%A8%EF%BC%8Cl3%E5%8F%AA%E6%9C%89%E9%83%A8%E5%88%86%E6%98%82%E8%B4%B5%E7%9A%84GPU%E6%9C%89"><span class="toc-number">1.4.0.0.0.1.</span> <span class="toc-text">cache l2 和 cache l3只有缓存作用，l3只有部分昂贵的GPU有</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/12/16/%E4%BD%93%E9%AA%8C%E8%AF%BE/" title="运维体验课">运维体验课</a><time datetime="2025-12-16T14:00:00.000Z" title="发表于 2025-12-16 22:00:00">2025-12-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/11/09/GPU%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3%E5%8F%8A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" title="无标题">无标题</a><time datetime="2025-11-09T06:09:58.724Z" title="发表于 2025-11-09 14:09:58">2025-11-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/30/moe/" title="cs336_4 - moe（专家混合模型）">cs336_4 - moe（专家混合模型）</a><time datetime="2025-10-30T09:05:01.685Z" title="发表于 2025-10-30 17:05:01">2025-10-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/08/18/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0/" title="面向对象程序设计">面向对象程序设计</a><time datetime="2025-08-18T08:12:36.000Z" title="发表于 2025-08-18 16:12:36">2025-08-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/07/15/o/" title="o">o</a><time datetime="2025-07-15T15:14:18.000Z" title="发表于 2025-07-15 23:14:18">2025-07-15</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png);"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 By 小羊</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>function initMermaid() {
+  console.log("Attempting to initialize Mermaid...");
+  if (typeof mermaid !== 'undefined') {
+    
+    // 处理被代码高亮插件分割的Mermaid代码
+    var mermaidContainers = document.querySelectorAll('code.language-mermaid, pre.language-mermaid');
+    
+    mermaidContainers.forEach(function(container) {
+      // 创建一个新的div来存放Mermaid代码
+      var mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      
+      // 提取文本内容 - 处理被分割成多行span的情况
+      var fullCode = '';
+      var lineSpans = container.querySelectorAll('span.line');
+      
+      if (lineSpans.length > 0) {
+        // 如果代码被分割成多个span.line元素
+        lineSpans.forEach(function(span) {
+          fullCode += span.textContent + '\n';
+        });
+      } else {
+        // 如果是完整的代码块
+        fullCode = container.textContent || container.innerText;
+      }
+      
+      // 设置Mermaid代码
+      mermaidDiv.textContent = fullCode;
+      
+      // 用新的div替换原始容器
+      if (container.parentNode) {
+        container.parentNode.replaceChild(mermaidDiv, container);
+      } else {
+        // 如果没有父节点，直接添加到body（备用方案）
+        document.body.appendChild(mermaidDiv);
+      }
+    });
+    
+    console.log("Found and processed Mermaid containers:", mermaidContainers.length);
+    
+    // 初始化并渲染
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: { useMaxWidth: true }
+    });
+    mermaid.init();
+    console.log("Mermaid initialization executed.");
+    
+  } else {
+    console.error("Mermaid library not found!");
+  }
+}
+
+// 使用多种方式确保执行
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMermaid);
+} else {
+  setTimeout(initMermaid, 100); // 稍微延迟执行
+}
+window.addEventListener('load', initMermaid);</script>

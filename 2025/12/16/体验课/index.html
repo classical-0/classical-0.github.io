@@ -1,0 +1,592 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>运维体验课 | classical.</title><meta name="author" content="小羊"><meta name="copyright" content="小羊"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="体验课互联网基本架构 图1：互联网的基本架构，极其脆弱，非常庞大   底层： c语言开发人员  倒数第二层： linux基金会  倒数第三层： DNS，互联网的基本架构  倒数第四层： 左边商业化，右边无偿开源  倒数第五层： AI  旁边的火箭： rust语言（变数）  红鸟： windows（变数）  上面右边堆得高高的：BS架构  最上面就是： 用户   目标：自动化运维  自动化历程 图2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="运维体验课">
+<meta property="og:url" content="http://classical-0.github.io/2025/12/16/%E4%BD%93%E9%AA%8C%E8%AF%BE/index.html">
+<meta property="og:site_name" content="classical.">
+<meta property="og:description" content="体验课互联网基本架构 图1：互联网的基本架构，极其脆弱，非常庞大   底层： c语言开发人员  倒数第二层： linux基金会  倒数第三层： DNS，互联网的基本架构  倒数第四层： 左边商业化，右边无偿开源  倒数第五层： AI  旁边的火箭： rust语言（变数）  红鸟： windows（变数）  上面右边堆得高高的：BS架构  最上面就是： 用户   目标：自动化运维  自动化历程 图2">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://classical-0.github.io/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png">
+<meta property="article:published_time" content="2025-12-16T14:00:00.000Z">
+<meta property="article:modified_time" content="2025-12-16T14:01:21.581Z">
+<meta property="article:author" content="小羊">
+<meta property="article:tag" content="-运维">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://classical-0.github.io/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "运维体验课",
+  "url": "http://classical-0.github.io/2025/12/16/%E4%BD%93%E9%AA%8C%E8%AF%BE/",
+  "image": "http://classical-0.github.io/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png",
+  "datePublished": "2025-12-16T14:00:00.000Z",
+  "dateModified": "2025-12-16T14:01:21.581Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "小羊",
+      "url": "http://classical-0.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://classical-0.github.io/2025/12/16/%E4%BD%93%E9%AA%8C%E8%AF%BE/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":230,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '运维体验课',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">classical.</span></a><a class="nav-page-title" href="/"><span class="site-name">运维体验课</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">运维体验课</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-12-16T14:00:00.000Z" title="发表于 2025-12-16 22:00:00">2025-12-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-12-16T14:01:21.581Z" title="更新于 2025-12-16 22:01:21">2025-12-16</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="体验课"><a href="#体验课" class="headerlink" title="体验课"></a>体验课</h1><h2 id="互联网基本架构"><a href="#互联网基本架构" class="headerlink" title="互联网基本架构"></a>互联网基本架构</h2><p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215175255829.png" alt="image-20251215175255829"></p>
+<center>图1：互联网的基本架构，极其脆弱，非常庞大</center>
+
+<ul>
+<li><p>底层： c语言开发人员</p>
+</li>
+<li><p>倒数第二层： linux基金会</p>
+</li>
+<li><p>倒数第三层： DNS，互联网的基本架构</p>
+</li>
+<li><p>倒数第四层： 左边商业化，右边无偿开源</p>
+</li>
+<li><p>倒数第五层： AI</p>
+</li>
+<li><p>旁边的火箭： rust语言（变数）</p>
+</li>
+<li><p>红鸟： windows（变数）</p>
+</li>
+<li><p>上面右边堆得高高的：BS架构</p>
+</li>
+<li><p>最上面就是： 用户</p>
+</li>
+</ul>
+<p><strong>目标：自动化运维</strong></p>
+<hr>
+<h2 id="自动化历程"><a href="#自动化历程" class="headerlink" title="自动化历程"></a>自动化历程</h2><p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215183701518.png" alt="image-20251215183701518"></p>
+<center>图2：云计算与开源技术发展时间线<center>
+
+<ul>
+<li><p>vmware： 做虚拟化的，vmware来自于这家公司（在国内几乎没有市场）</p>
+</li>
+<li><p>amazon： 亚马逊，开启全新IT消费方式，API消费方式，公有云技术代表</p>
+</li>
+<li><p>heroku： 09年的apache</p>
+</li>
+<li><p>openstack： 开源open source IaaS（基础设施技术），支持灵活部署公有云和私有云（仍在国内大量使用）</p>
+</li>
+<li><p>docker： 容器，整个互联网基于容器，定义了标准（使开发完的项目可以在全球范围运行，前提是运行在kubernetes）</p>
+</li>
+<li><p>kubernetes： 云原生平台，以后的学习方向，迎合paas（云平台技术）</p>
+</li>
+</ul>
+<p><em>人类一直在想办法实现自动化</em></p>
+<hr>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215190433596.png" alt="image-20251215190433596"></p>
+<center>图3：发展历程<center>
+
+<h2 id="上午体验"><a href="#上午体验" class="headerlink" title="上午体验"></a>上午体验</h2><h3 id="新建虚拟机"><a href="#新建虚拟机" class="headerlink" title="新建虚拟机"></a>新建虚拟机</h3><ol>
+<li>新建虚拟机</li>
+</ol>
+<p>   <img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215191248606.png" alt="image-20251215191248606"></p>
+<ol start="2">
+<li><p>选择对应版本</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215191421728.png" alt="image-20251215191421728"></p>
+<p>3.改名</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215192931047.png" alt="image-20251215192931047"></p>
+<p>4.配置</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215193116988.png" alt="image-20251215193116988"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215193343133.png" alt="image-20251215193343133"></p>
+<p>5.网络配置</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215193448513.png" alt="image-20251215193448513"></p>
+<p>6.I&#x2F;O控制类型</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215193602273.png" alt="image-20251215193602273"></p>
+<p>7.虚拟磁盘类型</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215193715614.png" alt="image-20251215193715614"></p>
+<p>8.磁盘容量设置</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215193824425.png" alt="image-20251215193824425"></p>
+</li>
+</ol>
+<hr>
+<h3 id="centos7设置"><a href="#centos7设置" class="headerlink" title="centos7设置"></a>centos7设置</h3><p>1.语言设置</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215194203105.png" alt="image-20251215194203105"></p>
+<p>2.时区设置</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215194259600.png" alt="image-20251215194259600"></p>
+<p>3.禁止kdump</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215194501563.png" alt="image-20251215194501563"></p>
+<p>4.自动分配内存</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215194543701.png" alt="image-20251215194543701"></p>
+<p>5.网络，自动使用ens33</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215194613985.png" alt="image-20251215194613985"></p>
+<p>6.设置用户密码</p>
+<p><img src="/image-20251215194731799.png" alt="image-20251215194731799"></p>
+<hr>
+<h3 id="CentOS体验"><a href="#CentOS体验" class="headerlink" title="CentOS体验"></a>CentOS体验</h3><p>1.下载moba（可控制虚拟机，方便快捷）</p>
+<p>2.设置moba</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215195140347.png" alt="image-20251215195140347"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215195205136.png" alt="image-20251215195205136"></p>
+<p>3.<code>IP a</code>指令看ip地址</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215195408986.png" alt="image-20251215195408986"></p>
+<p>4.连接ip</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215195605908.png" alt="image-20251215195605908"></p>
+<p>5.因为centos7国内已停止运营，所以使用国内镜像</p>
+<p>阿里云（<a target="_blank" rel="noopener" href="https://developer.aliyun.com/mirror/%EF%BC%89%E5%92%8C%E6%B8%85%E5%8D%8E%E6%BA%90%EF%BC%88https://mirrors.tuna.tsinghua.edu.cn/%EF%BC%89">https://developer.aliyun.com/mirror/）和清华源（https://mirrors.tuna.tsinghua.edu.cn/）</a></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215213324958.png" alt="image-20251215213324958"></p>
+<p>复制这个源：</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215213403440.png" alt="image-20251215213403440"></p>
+<p>下载成功：</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215213446791.png" alt="image-20251215213446791"></p>
+<p>下载vim：</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215213530439.png" alt="image-20251215213530439"></p>
+<p><code>vim CentOS-Base.repo</code><strong>Vim 文本编辑器</strong> 打开并编辑 <strong>CentOS 软件仓库配置文件</strong>，dd指令删掉多余行：</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215214047534.png" alt="image-20251215214047534"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215214109564.png" alt="image-20251215214109564"></p>
+<p>bases和updates还有extras镜像源删的只剩一个，剩下的可删可不删（enabled &#x3D; 0代表未启用）</p>
+<p>更新一下源:</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215214434727.png" alt="image-20251215214434727">****</p>
+<p><code>getenforce</code>（查看<strong>当前 SELinux（Security-Enhanced Linux）状态的命令</strong>）:<code>enforcing</code>（强制中断，除了22端口以外的网络协议全部中断），<code>setenforce 0</code>:临时切换SELinux状态</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215220037393.png" alt="image-20251215220037393"></p>
+<p>封装模板：</p>
+<p><code>vim /etc/sysconfig/selinux</code>,然后光标移到最后按<code>a</code>就可以修改内容，然后将enforcing改成disabled，然后按esc键退出，接着：wq（保存写退出）</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215220433567.png" alt="image-20251215220433567"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215220620323.png" alt="image-20251215220620323"></p>
+<p>查看文件是否改过来了（这个更改要重启连接之后才会生效）：</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215220827591.png" alt="image-20251215220827591"></p>
+<p><code>yum install -y bash-completion</code>: 代码补全功能包安装，要想生效<code>ctrl+d</code>（退出终端）和<code>ctrl+r</code>（重新连接）</p>
+<p>禁用防火墙：</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215223628373.png" alt="image-20251215223628373"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215223704518.png" alt="image-20251215223704518"></p>
+<p><em>装一些常用工具： yum install -y net-tools wget(装了两个)</em></p>
+<p><strong>以后想安装软件的流程：1.设置软件源 2.禁用SElinux 3.关闭防火墙</strong></p>
+<p>6.更改网络端口：</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215224909459.png" alt="image-20251215224909459"></p>
+<p>禁用networkmanager</p>
+<p><code>vim /boot/grub2/grub.cfg</code></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215225304172.png" alt="image-20251215225304172"></p>
+<p>在Linux16最后加上net.ifnames&#x3D;0</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215225556409.png" alt="image-20251215225556409"></p>
+<p>更改网卡命名</p>
+<p><code>vim ifcfg-eth0</code>,保留这几个</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251215230201661.png" alt="image-20251215230201661"></p>
+<p>reboot指令重启虚拟机，这个时候<code>ctrl+R</code>如果重启成功了说明刚才的配置是成功的。</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216153404033.png" alt="image-20251216153404033"></p>
+<center>重启之后查看ip，防火墙<center>
+
+<hr>
+<h2 id="下午体验"><a href="#下午体验" class="headerlink" title="下午体验"></a>下午体验</h2><h3 id="1-如果显示反应太晚了加快连接速度的方法："><a href="#1-如果显示反应太晚了加快连接速度的方法：" class="headerlink" title="1.如果显示反应太晚了加快连接速度的方法："></a>1.如果显示反应太晚了加快连接速度的方法：</h3><p>1.更改主机名</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216154625880.png" alt="image-20251216154625880"></p>
+<p>2.因为一般局域网解析，在操作系统层面不管是windows还是linux，他所有的文件解析的优先级都高于DNS，因此只需要把主机名写到配置文件里，运用这个指令：<code>vim /etc/hosts</code>，注意ip在前主机名在后</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216155607361.png" alt="image-20251216155607361"></p>
+<p>ping指令检查连接，<code>ctrl+c</code>中断连接</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216155710676.png" alt="image-20251216155710676"></p>
+<p><em>ssh默认在网络连接中会做DNS解析，所以如果dns没有做解析的话网速会特别慢，虽然没解析也能连但是有一个等待的时间</em></p>
+<ul>
+<li>小tips：敲两下yy就会复制，如下：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216160220745.png" alt="image-20251216160220745"></p>
+<p>后面如果要开很多个主机的话加快连接的方法：</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216160431639.png" alt="image-20251216160431639"></p>
+<p><code>poweroff</code>：关机指令</p>
+<hr>
+<h3 id="2-克隆虚拟机"><a href="#2-克隆虚拟机" class="headerlink" title="2.克隆虚拟机"></a>2.克隆虚拟机</h3><p>1.克隆,以后想创建虚拟机的时候就直接克隆就可以了，不用再安装虚拟机</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216161101702.png" alt="image-20251216161101702"></p>
+<p>![屏幕截图 2025-12-16 161306](<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/classical-0/img/main/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE">https://raw.githubusercontent.com/classical-0/img/main/屏幕截图</a> 2025-12-16 161306.png)</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216161527017.png" alt="image-20251216161527017"></p>
+<p>因为克隆的虚拟机跟随被克隆的虚拟机的网络配置，所以克隆机网络模式也是net模式，所以虚拟网络通常使用DHCP为虚拟机分配虚拟ip</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216164653888.png" alt="image-20251216164653888"></p>
+<p>发现虚拟机ip跟解析ip不一致（如上图）怎么办：<strong>要么改ip，要么改解析</strong></p>
+<p>所以我们要将IP地址由dicp分配变成自己封装，指令<code>vim /etc/sysconfig/network-scripts/ifcfg-eth0</code>(最后那个文件就是linux的网卡)，进入文件之后将dicp改成none</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216165523623.png" alt="image-20251216165523623"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216165539428.png" alt="image-20251216165539428"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216170136605.png" alt="image-20251216170136605"></p>
+<center>改解析，不改ip<center>
+
+<p>做一个快照，到时候不管做了什么都能回到拍摄快照时的状态，把所有文件删完了也可以回来，步骤：1.poweroff关掉虚拟机（快照克隆都必须在关机状态做） 2.</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216170511220.png" alt="image-20251216170511220"></p>
+<hr>
+<h3 id="3-体验云主机"><a href="#3-体验云主机" class="headerlink" title="3.体验云主机"></a>3.体验云主机</h3><h4 id="1-阿里云和华为云两个选择可以设置云主机"><a href="#1-阿里云和华为云两个选择可以设置云主机" class="headerlink" title="1.阿里云和华为云两个选择可以设置云主机"></a>1.阿里云和华为云两个选择可以设置云主机</h4><p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216172137352.png" alt="image-20251216172137352"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216172320434.png" alt="image-20251216172320434"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216172404475.png" alt="image-20251216172404475"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216172440824.png" alt="image-20251216172440824"></p>
+<center>一共两种镜像：虚拟机镜像和容器镜像<center>
+
+<p>华为云也差不多，此处略</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216172835964.png" alt="image-20251216172835964"></p>
+<center>不推荐选安全组，推荐选端口全开<center>
+
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216172957501.png" alt="image-20251216172957501"></p>
+<p>选用密码的方式：<br><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216173035132.png" alt="image-20251216173035132"></p>
+<p>云端的好处：可以一次性用100台</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216173150549.png" alt="image-20251216173150549"></p>
+<p>相当于在虚拟机里用模板拉起来了一个操作系统（公有云上面就是一个虚拟机），使用的是kvm的虚拟化技术</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216173249381.png" alt="image-20251216173249381"></p>
+<h4 id="2-使用云主机"><a href="#2-使用云主机" class="headerlink" title="2.使用云主机"></a>2.使用云主机</h4><p>1.复制弹性公网地址</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216173521637.png" alt="image-20251216173521637"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216173550025.png" alt="image-20251216173550025"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216173618889.png" alt="image-20251216173618889"></p>
+<p>阿里云以此类推</p>
+<p>查看cpu：</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216173719102.png" alt="image-20251216173719102"></p>
+<hr>
+<h4 id="3-云主机上部署小游戏"><a href="#3-云主机上部署小游戏" class="headerlink" title="3.云主机上部署小游戏"></a>3.云主机上部署小游戏</h4><p><em>docker一条命令搞定</em></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216180118703.png" alt="image-20251216180118703"></p>
+<p>nginx：互联网都在使用的webserver</p>
+<p>获取的方法，通过docker拉取</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216175009537.png" alt="image-20251216175009537"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216175222574.png" alt="image-20251216175222574"></p>
+<p>同一台主机访问不同地址</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216175356198.png" alt="image-20251216175356198"></p>
+<p>如果你想部署webserver，那么现在把你的网站放上去，所有的网页都是用这种方式发布出来的，网站就是目录</p>
+<p>弹性ip就是公网的接入，弹性地址是收费的</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216175923387.png" alt="image-20251216175923387"></p>
+<hr>
+<h4 id="4-手动实践docker部署"><a href="#4-手动实践docker部署" class="headerlink" title="4.手动实践docker部署"></a>4.手动实践docker部署</h4><p><em>现在生产几乎中不用docker了，用的kubernetes，docker可以理解为一个管理器，我们实际运行容器是用CRI接口（容器运行时接口），这个CRI接口仍然是Docker提供的，而我们在使用kubernetes只需要containerd</em></p>
+<p>1.连接自己上午封装的虚拟机（后面应该要改成root）</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216180243066.png" alt="image-20251216180243066"></p>
+<p>2.指令：<code>vim /etc/yum.repos.d/docker.repo</code>，看到如下图</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216181731375.png" alt="image-20251216181731375"></p>
+<p>然后按a进入insert模式，然后将</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[docker]</span><br><span class="line">name=docker-ce</span><br><span class="line">baseurl=https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/7/x86_64/stable/</span><br><span class="line">gpgcheck=0</span><br></pre></td></tr></table></figure>
+
+<p>直接粘贴，得到</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216182001146.png" alt="image-20251216182001146"></p>
+<p>然后：wq退出</p>
+<p>3.安装docker-ce(社区版docker)</p>
+<p><code>[root@server1 ~]# yum install -y docker-ce</code></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216182343098.png" alt="image-20251216182343098"></p>
+<p>4.启动服务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@server1 ~]# systemctl  enable --now docker</span><br><span class="line">[root@server1 ~]# docker info</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216182521090.png" alt="image-20251216182521090"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216182546533.png" alt="image-20251216182546533"></p>
+<p>跟云端不一样本地有警告，解决方法：就是vim创建空文件，然后把下面三条指令直接粘贴到空文件里面，然后esc，：wq退出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">激活内核选项（可选）</span><br><span class="line"></span><br><span class="line">[root@server1 ~]# vim /etc/sysctl.d/docker.conf</span><br><span class="line"></span><br><span class="line">net.bridge.bridge-nf-call-iptables = 1</span><br><span class="line"></span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = 1</span><br><span class="line"></span><br><span class="line">net.ipv4.ip_forward = 1</span><br></pre></td></tr></table></figure>
+
+<p>然后执行下面这行指令让上面的指令生效</p>
+<p><code>[root@server1 ~]# sysctl --system</code></p>
+<p>5.重启docker服务</p>
+<p><code>[root@server1 ~]# systemctl  restart docker</code></p>
+<p>docker info检查是否生效（重启之后上面配置的东西才会生效）</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216183209361.png" alt="image-20251216183209361"></p>
+<center>警报消除前<center>
+
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216183242565.png" alt="image-20251216183242565"></p>
+<center>警告消除后<center>
+
+<hr>
+<p>6.配置镜像加速器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">查询镜像： </span><br><span class="line">docker search docker.1ms.run/nginx</span><br><span class="line">docker search docker.1ms.run/yakexi007(游戏是这个，前面那个1ms.run是免费的代理站点)</span><br></pre></td></tr></table></figure>
+
+<p>7.拉取镜像：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker pull docker.1ms.run/busybox</span><br><span class="line">docker pull docker.1ms.run/yakexi007/game2048</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216183837575.png" alt="image-20251216183837575"></p>
+<p>通过上图命令可以查看到的话说明镜像已经存在你本地了</p>
+<p>8.运行容器：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name game2048 -p 80:80 docker.1ms.run/yakexi007/game2048</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216184034103.png" alt="image-20251216184034103"></p>
+<p>-p是端口映射的意思：容器在运行的时候网络是隔离的，所以我们需要通过端口映射的手段把它映射到我们的虚拟机上面</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216184238447.png" alt="image-20251216184238447"></p>
+<p>这个80是本机的80，也就是虚拟机的80，如图</p>
+<p>当你要访问虚拟机的80时，它会通过DNAT（目标地址转换），转换到你容器内的80</p>
+<p>而容器怎么看，通过docker ps,如下显示它是正在活跃的</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216184719862.png" alt="image-20251216184719862"></p>
+<p><em>容器是有自己的独立网络的，通过 Linux Kernel 的 <strong>Network Namespace</strong> 实现的</em></p>
+<p>9.访问自己搭建的网页</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216185634713.png" alt="image-20251216185634713"></p>
+<p>那个粉红色的地方是IP地址，通过浏览器访问</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216185745799.png" alt="image-20251216185745799"></p>
+<p>后面nginx的步骤除了输入ip时要输入端口不一样，所以这里略</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216185946353.png" alt="image-20251216185946353"></p>
+<hr>
+<p>10.回收</p>
+<p><code>docker  rm -f game2048</code></p>
+<p><code>docker rm -f nginx</code></p>
+<hr>
+<h3 id="4-知识补充"><a href="#4-知识补充" class="headerlink" title="4.知识补充"></a>4.知识补充</h3><p>rhel -&gt; centos &#x2F;rocky&#x2F;oel</p>
+<p>红帽在操作系统上面没有解决不了的，很强，但是贵</p>
+<h4 id="计算机"><a href="#计算机" class="headerlink" title="计算机"></a>计算机</h4><h5 id="1-计算机组成"><a href="#1-计算机组成" class="headerlink" title="1.计算机组成"></a>1.计算机组成</h5><ul>
+<li><p><strong>控制器</strong>，是整个计算机的中枢神经，根据程序要求进行控制，协调计算机各部分工作及内存与外设的访问等。</p>
+</li>
+<li><p><strong>运算器</strong>，功能是对数据进行各种<strong>算术运算</strong>和<strong>逻辑运算</strong>。</p>
+</li>
+<li><p><strong>输入设备</strong>：输入设备的作用是将程序、原始数据、文字、字符、控制命令或现场采集的数据等信息输入到计算机。常见的输入设备有键盘、鼠标等。</p>
+</li>
+<li><p><strong>输出设备</strong>：它把计算机计算后的信息输出出来。常用的输出设备有显示终端、打印机、绘图仪等。（输出分为标准输出和标准错误输出）</p>
+</li>
+<li><p><strong>存储器</strong>：功能是存储程序、数据和各种信号、命令等信息。（磁盘）（操作系统的刷新频率大概三十秒，但是对于数据库系统我们是按事件来做的，而他保证数据不丢你要频繁的去写你的磁盘，所以如果你的磁盘依然是机械盘的话，它的写入效率是比较低下的，所以现在笔记本都是固态盘）</p>
+</li>
+</ul>
+<h5 id="2-计算机的功能"><a href="#2-计算机的功能" class="headerlink" title="2.计算机的功能"></a>2.计算机的功能</h5><p>接收输入设备的指令和数据，经过cpu的数据和逻辑运算处理产生有用的信息存储起来或者输出到屏幕上。</p>
+<hr>
+<h4 id="操作系统"><a href="#操作系统" class="headerlink" title="操作系统"></a>操作系统</h4><h5 id="1-操作系统的功能"><a href="#1-操作系统的功能" class="headerlink" title="1.操作系统的功能"></a>1.操作系统的功能</h5><ul>
+<li><strong>操作系统的主要工作</strong>是由<strong>操作系统内核</strong>实现的，操作系统内核提供一系列具备预定功能的多内核函数，通过一组称为系统调用的接口（应用编程接口API，由操作系统实现提供的所有系统调用所构成的集合，是应用程序和系统之间的接口）呈现给用户。</li>
+</ul>
+<p><code>cat /etc/shells</code>,查看&#x2F;etc&#x2F;shells文件，在linux中它是一个关键配置文件，列出了系统中所有合法的登录shell路径 [Shell 路径指的是用户登录后启动的交互式解释器（如 Bash、Zsh 等）的可执行文件路径]，当输入这个指令时是由shell解释给linux kernel</p>
+<p><code>echo $BASH    # 输出当前 Bash 解释器路径（如 /bin/bash）,echo：显示变量</code></p>
+<h5 id="2-操作系统的组成"><a href="#2-操作系统的组成" class="headerlink" title="2.操作系统的组成"></a>2.操作系统的组成</h5><p>宏观：<br><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216204005416.png" alt="image-20251216204005416"></p>
+<center>当前bash路径<center>
+微观：
+
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216204341023.png" alt="image-20251216204341023"></p>
+<p>由图可知用户要用内核必须有一个shell的解释，所以<strong>Linux的交互式环境通过命令解释器（Shell）实现，而Shell是交互的核心工具</strong>。</p>
+<p><em>用户输入命令，shell翻译给内核，内核驱动硬件，反馈出来的数据再给我们的用户进行查看解释出来</em></p>
+<p>这还分为用户态和内核态（深入理解的话就是我们进行这个排错，这个问题是在哪个层面出现的故障）：</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216205050415.png" alt="image-20251216205050415"></p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216205821378.png" alt="image-20251216205821378"></p>
+<h5 id="2-操作系统内核的功能："><a href="#2-操作系统内核的功能：" class="headerlink" title="2.操作系统内核的功能："></a>2.操作系统内核的功能：</h5><ul>
+<li><p>系统调用接口：程序员通过该接口与内核进行通信</p>
+</li>
+<li><p>进程管理：计算机可能同时有很多的工作在等待CPU运算处理，内核这个时候必须要能够控制这些工作，让CPU的资源做有效的分配才行。</p>
+</li>
+<li><p>内存管理：控制整个系统的内存管理，系统所有的程序代码与数据都必须要先存放在内核当中。通常内核会提供虚拟内存的功能，当内存不足时可以提供内存交换的功能。</p>
+</li>
+<li><p>文件系统管理 ：例如数据的输入和输出等的工作，还有不同文件格式的支持等。</p>
+</li>
+<li><p>设备驱动：硬件的管理是内核的主要工作之一，设备的驱动程序就是内核管理着硬件的代码，设备的驱动程序可以使硬件准备好工作，时刻等待着程序的调用。好在目前都有所谓的“可加载模块”功能，可以将驱动程序编辑成模块，就不需要重新编译内核。</p>
+</li>
+</ul>
+<h5 id="3-常见的操作系统"><a href="#3-常见的操作系统" class="headerlink" title="3.常见的操作系统"></a>3.常见的操作系统</h5><p>UNIX【 IOE &#x3D; IBM AIX(小型机，很稳定)+ORACLE（数据库中oracle首屈一指）+EMC（商用存储）】、Linux类（主流）、MacOS、Windows类、iOS、Android、ChromeOS等等</p>
+<hr>
+<h4 id="linux入门"><a href="#linux入门" class="headerlink" title="linux入门"></a>linux入门</h4><h5 id="开源共享精神"><a href="#开源共享精神" class="headerlink" title="开源共享精神"></a><em>开源共享精神</em></h5><p><strong>1.开源软件的特性：</strong></p>
+<p>低风险，高品质，低成本，更透明</p>
+<p><strong>2.著名的开源许可协议</strong></p>
+<ul>
+<li>GPU GPL（自由软件基金会）</li>
+<li>BSD</li>
+</ul>
+<p>查看当前系统的详细信息，包括内核版本、主机名、操作系统类型、硬件架构等，可以发现当前使用的linux是GNU组织加linux内核：</p>
+<p><img src="https://raw.githubusercontent.com/classical-0/img/main/image-20251216211206056.png" alt="image-20251216211206056"></p>
+<ul>
+<li>Apache**许可证版本（<strong>Apache License Version</strong>）许可协议</li>
+<li><strong>MPL</strong>（<strong>Mozilla Public License</strong>，<strong>Mozilla</strong>公共许可）许可协议</li>
+<li><strong>MIT</strong>（<strong>Massachusetts Institute of Technology</strong>）许可协议</li>
+</ul>
+<h5 id="linux的诞生"><a href="#linux的诞生" class="headerlink" title="linux的诞生"></a>linux的诞生</h5><p><strong>linux基金会，致力于促进Linux操作系统和开源软件的增长和发展</strong> </p>
+<p>Linux 由 Linus Torvalds 于1991年因兴趣驱动开发并开源，早期依赖全球开发者协作完善，1996年支持多处理器后逐步成为服务器主流，2007年通过 Android 拓展至移动领域，2010年后凭借持续优化的内核性能、硬件兼容性及安全特性，在云计算、人工智能、物联网等新兴场景全面渗透，形成以 Debian&#x2F;Ubuntu、Red Hat&#x2F;Fedora、Arch Linux 等为代表的多元化发行版生态，成为全球技术基础设施的核心组件。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://classical-0.github.io">小羊</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://classical-0.github.io/2025/12/16/%E4%BD%93%E9%AA%8C%E8%AF%BE/">http://classical-0.github.io/2025/12/16/%E4%BD%93%E9%AA%8C%E8%AF%BE/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://classical-0.github.io" target="_blank">classical.</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%BF%90%E7%BB%B4/">-运维</a></div><div class="post-share"><div class="social-share" data-image="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/11/09/GPU%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3%E5%8F%8A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" title=""><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2"></div></div><div class="info-2"><div class="info-item-1">GPU架构上图有几个重点的元素，也是我们下文重点要阐述的概念，绿色代表的是computational units(可计算单元) 或者称之为 cores(核心)，橙色代表memories（内存） ，黄色代表的是control units（控制单元）。 计算单元CPU的计算单元是“大”而“少”的，然而GPU的计算单元是“小”而“多”的。 这里的大小是指的计算能力，多少指的是设备中的数量。通过观察上图，显然可以看出，计算单元（绿色的部分），CPU“大少”，GPU“小多”的特点。 在过去的很长时间里，CPU的core计算能力增长是得益于主频时钟最大的频率增长。 相反，GPU不仅没有主频时钟的提升，而且还经历过主频下降的情况，因为GPU需要适应嵌入式应用环境，在这个环境下对功耗的要求是比较高的，不能容忍超高主频的存在。  时钟频率（clock rate）是指同步电路中时钟的基础频率，以赫兹（Hz）为单位度量。它是评定CPU性能的重要指标之一。时钟频率越高，CPU的速度通常也越快。主频（CPU Clock Speed）是指CPU内核工作的时钟频率。主频表示在CPU内数字脉冲信号震荡的速度。虽...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">小羊</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://mail.qq.com/cgi-bin/frame_html?sid=DdTu5zhxMtGmx0Yu&amp;r=29af1364f8ac3adca5fee6ecb77262bc&amp;lang=zh" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">这里没有什么好东西，快走吧！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%93%E9%AA%8C%E8%AF%BE"><span class="toc-number">1.</span> <span class="toc-text">体验课</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%92%E8%81%94%E7%BD%91%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84"><span class="toc-number">1.1.</span> <span class="toc-text">互联网基本架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E5%8E%86%E7%A8%8B"><span class="toc-number">1.2.</span> <span class="toc-text">自动化历程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8A%E5%8D%88%E4%BD%93%E9%AA%8C"><span class="toc-number">1.3.</span> <span class="toc-text">上午体验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E5%BB%BA%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="toc-number">1.3.1.</span> <span class="toc-text">新建虚拟机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#centos7%E8%AE%BE%E7%BD%AE"><span class="toc-number">1.3.2.</span> <span class="toc-text">centos7设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CentOS%E4%BD%93%E9%AA%8C"><span class="toc-number">1.3.3.</span> <span class="toc-text">CentOS体验</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8B%E5%8D%88%E4%BD%93%E9%AA%8C"><span class="toc-number">1.4.</span> <span class="toc-text">下午体验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%A6%82%E6%9E%9C%E6%98%BE%E7%A4%BA%E5%8F%8D%E5%BA%94%E5%A4%AA%E6%99%9A%E4%BA%86%E5%8A%A0%E5%BF%AB%E8%BF%9E%E6%8E%A5%E9%80%9F%E5%BA%A6%E7%9A%84%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.如果显示反应太晚了加快连接速度的方法：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%85%8B%E9%9A%86%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.克隆虚拟机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%BD%93%E9%AA%8C%E4%BA%91%E4%B8%BB%E6%9C%BA"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.体验云主机</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E9%98%BF%E9%87%8C%E4%BA%91%E5%92%8C%E5%8D%8E%E4%B8%BA%E4%BA%91%E4%B8%A4%E4%B8%AA%E9%80%89%E6%8B%A9%E5%8F%AF%E4%BB%A5%E8%AE%BE%E7%BD%AE%E4%BA%91%E4%B8%BB%E6%9C%BA"><span class="toc-number">1.4.3.1.</span> <span class="toc-text">1.阿里云和华为云两个选择可以设置云主机</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%BD%BF%E7%94%A8%E4%BA%91%E4%B8%BB%E6%9C%BA"><span class="toc-number">1.4.3.2.</span> <span class="toc-text">2.使用云主机</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E4%BA%91%E4%B8%BB%E6%9C%BA%E4%B8%8A%E9%83%A8%E7%BD%B2%E5%B0%8F%E6%B8%B8%E6%88%8F"><span class="toc-number">1.4.3.3.</span> <span class="toc-text">3.云主机上部署小游戏</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E6%89%8B%E5%8A%A8%E5%AE%9E%E8%B7%B5docker%E9%83%A8%E7%BD%B2"><span class="toc-number">1.4.3.4.</span> <span class="toc-text">4.手动实践docker部署</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85"><span class="toc-number">1.4.4.</span> <span class="toc-text">4.知识补充</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA"><span class="toc-number">1.4.4.1.</span> <span class="toc-text">计算机</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90"><span class="toc-number">1.4.4.1.1.</span> <span class="toc-text">1.计算机组成</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-number">1.4.4.1.2.</span> <span class="toc-text">2.计算机的功能</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.4.4.2.</span> <span class="toc-text">操作系统</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-number">1.4.4.2.1.</span> <span class="toc-text">1.操作系统的功能</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%BB%84%E6%88%90"><span class="toc-number">1.4.4.2.2.</span> <span class="toc-text">2.操作系统的组成</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%86%85%E6%A0%B8%E7%9A%84%E5%8A%9F%E8%83%BD%EF%BC%9A"><span class="toc-number">1.4.4.2.3.</span> <span class="toc-text">2.操作系统内核的功能：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-%E5%B8%B8%E8%A7%81%E7%9A%84%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.4.4.2.4.</span> <span class="toc-text">3.常见的操作系统</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#linux%E5%85%A5%E9%97%A8"><span class="toc-number">1.4.4.3.</span> <span class="toc-text">linux入门</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BC%80%E6%BA%90%E5%85%B1%E4%BA%AB%E7%B2%BE%E7%A5%9E"><span class="toc-number">1.4.4.3.1.</span> <span class="toc-text">开源共享精神</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#linux%E7%9A%84%E8%AF%9E%E7%94%9F"><span class="toc-number">1.4.4.3.2.</span> <span class="toc-text">linux的诞生</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/12/16/%E4%BD%93%E9%AA%8C%E8%AF%BE/" title="运维体验课">运维体验课</a><time datetime="2025-12-16T14:00:00.000Z" title="发表于 2025-12-16 22:00:00">2025-12-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/11/09/GPU%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3%E5%8F%8A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" title="无标题">无标题</a><time datetime="2025-11-09T06:09:58.724Z" title="发表于 2025-11-09 14:09:58">2025-11-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/30/moe/" title="cs336_4 - moe（专家混合模型）">cs336_4 - moe（专家混合模型）</a><time datetime="2025-10-30T09:05:01.685Z" title="发表于 2025-10-30 17:05:01">2025-10-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/08/18/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0/" title="面向对象程序设计">面向对象程序设计</a><time datetime="2025-08-18T08:12:36.000Z" title="发表于 2025-08-18 16:12:36">2025-08-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/07/15/o/" title="o">o</a><time datetime="2025-07-15T15:14:18.000Z" title="发表于 2025-07-15 23:14:18">2025-07-15</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250716172926.png);"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 By 小羊</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>function initMermaid() {
+  console.log("Attempting to initialize Mermaid...");
+  if (typeof mermaid !== 'undefined') {
+    
+    // 处理被代码高亮插件分割的Mermaid代码
+    var mermaidContainers = document.querySelectorAll('code.language-mermaid, pre.language-mermaid');
+    
+    mermaidContainers.forEach(function(container) {
+      // 创建一个新的div来存放Mermaid代码
+      var mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      
+      // 提取文本内容 - 处理被分割成多行span的情况
+      var fullCode = '';
+      var lineSpans = container.querySelectorAll('span.line');
+      
+      if (lineSpans.length > 0) {
+        // 如果代码被分割成多个span.line元素
+        lineSpans.forEach(function(span) {
+          fullCode += span.textContent + '\n';
+        });
+      } else {
+        // 如果是完整的代码块
+        fullCode = container.textContent || container.innerText;
+      }
+      
+      // 设置Mermaid代码
+      mermaidDiv.textContent = fullCode;
+      
+      // 用新的div替换原始容器
+      if (container.parentNode) {
+        container.parentNode.replaceChild(mermaidDiv, container);
+      } else {
+        // 如果没有父节点，直接添加到body（备用方案）
+        document.body.appendChild(mermaidDiv);
+      }
+    });
+    
+    console.log("Found and processed Mermaid containers:", mermaidContainers.length);
+    
+    // 初始化并渲染
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: { useMaxWidth: true }
+    });
+    mermaid.init();
+    console.log("Mermaid initialization executed.");
+    
+  } else {
+    console.error("Mermaid library not found!");
+  }
+}
+
+// 使用多种方式确保执行
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMermaid);
+} else {
+  setTimeout(initMermaid, 100); // 稍微延迟执行
+}
+window.addEventListener('load', initMermaid);</script>
